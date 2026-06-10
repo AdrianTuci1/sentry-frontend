@@ -14,12 +14,6 @@ export const useAppStore = create((set, get) => ({
   activeSection: 'analytics',
 
   // Analytics sub-views
-  analyticsViews: [
-    { id: 'servers', label: 'Servers', icon: 'Server' },
-    { id: 'financial', label: 'Financial', icon: 'DollarSign' },
-    { id: 'marketing', label: 'Marketing', icon: 'TrendingUp' },
-    { id: 'web', label: 'Web Analytics', icon: 'Globe' },
-  ],
   activeAnalyticsView: 'servers',
 
   // Sidebar state
@@ -29,13 +23,6 @@ export const useAppStore = create((set, get) => ({
   chatSessions: [],
   activeChatId: null,
   isChatPanelOpen: true,
-
-  sections: [
-    { id: 'analytics', label: 'Analytics', icon: 'BarChart3' },
-    { id: 'nodes', label: 'Nodes / Findings', icon: 'GitBranch' },
-    { id: 'integrations', label: 'Integrations', icon: 'Plug' },
-    { id: 'chat', label: 'Chat', icon: 'MessageSquare' },
-  ],
 
   setActiveSection: (section) => set({ activeSection: section }),
 

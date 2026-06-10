@@ -1,78 +1,36 @@
 import {
-  LayoutDashboardIcon,
-  ServerIcon,
-  DollarSignIcon,
-  TrendingUpIcon,
-  GlobeIcon,
-  GitBranchIcon,
-  PlugIcon,
-  MessageSquareIcon,
+  BarChart3,
+  GitBranch,
+  Plug,
+  MessageSquare,
 } from "lucide-react";
 
-export const navGroups = [
+export const navItems = [
   {
-    label: "Analytics",
-    items: [
-      {
-        title: "Servers",
-        path: "#/analytics/servers",
-        icon: <ServerIcon size={18} />,
-        view: "servers",
-      },
-      {
-        title: "Financial",
-        path: "#/analytics/financial",
-        icon: <DollarSignIcon size={18} />,
-        view: "financial",
-      },
-      {
-        title: "Marketing",
-        path: "#/analytics/marketing",
-        icon: <TrendingUpIcon size={18} />,
-        view: "marketing",
-      },
-      {
-        title: "Web",
-        path: "#/analytics/web",
-        icon: <GlobeIcon size={18} />,
-        view: "web",
-      },
-    ],
+    id: "analytics",
+    title: "Analytics",
+    icon: <BarChart3 size={18} />,
   },
   {
-    label: "Workspace",
-    items: [
-      {
-        title: "Nodes / Findings",
-        path: "#/nodes",
-        icon: <GitBranchIcon size={18} />,
-        section: "nodes",
-      },
-    ],
+    id: "nodes",
+    title: "Nodes / Findings",
+    icon: <GitBranch size={18} />,
   },
   {
-    label: "Connect",
-    items: [
-      {
-        title: "Integrations",
-        path: "#/integrations",
-        icon: <PlugIcon size={18} />,
-        section: "integrations",
-      },
-      {
-        title: "Chat",
-        path: "#/chat",
-        icon: <MessageSquareIcon size={18} />,
-        section: "chat",
-      },
-    ],
+    id: "integrations",
+    title: "Integrations",
+    icon: <Plug size={18} />,
+  },
+  {
+    id: "chat",
+    title: "Chat",
+    icon: <MessageSquare size={18} />,
   },
 ];
 
-export const navLinks = [
-  ...navGroups.flatMap((group) =>
-    group.items.flatMap((item) =>
-      item.subItems?.length ? [item, ...item.subItems] : [item]
-    )
-  ),
+export const analyticsViews = [
+  { id: "servers", label: "Servers" },
+  { id: "financial", label: "Financial" },
+  { id: "marketing", label: "Marketing" },
+  { id: "web", label: "Web" },
 ];
