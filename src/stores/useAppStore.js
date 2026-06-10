@@ -11,7 +11,16 @@ export const useAppStore = create((set, get) => ({
   ],
 
   // Navigation state
-  activeSection: 'nodes',
+  activeSection: 'analytics',
+
+  // Analytics sub-views
+  analyticsViews: [
+    { id: 'servers', label: 'Servers', icon: 'Server' },
+    { id: 'financial', label: 'Financial', icon: 'DollarSign' },
+    { id: 'marketing', label: 'Marketing', icon: 'TrendingUp' },
+    { id: 'web', label: 'Web Analytics', icon: 'Globe' },
+  ],
+  activeAnalyticsView: 'servers',
 
   // Sidebar state
   sidebarCollapsed: false,
@@ -29,6 +38,8 @@ export const useAppStore = create((set, get) => ({
   ],
 
   setActiveSection: (section) => set({ activeSection: section }),
+
+  setActiveAnalyticsView: (view) => set({ activeAnalyticsView: view }),
 
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
 
