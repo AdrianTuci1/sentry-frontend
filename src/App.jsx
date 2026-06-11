@@ -6,8 +6,8 @@ import { GraphView } from "@/components/shell/GraphView";
 import { SettingsView } from "@/components/shell/SettingsView";
 import { ChatView } from "@/components/shell/ChatView";
 import { OrganizationHomeView } from "@/components/shell/OrganizationHomeView";
-import { OrganizationProjectsView } from "@/components/shell/OrganizationProjectsView";
 import { OrganizationAdminView } from "@/components/shell/OrganizationAdminView";
+import { OrganizationOrganizationsView } from "@/components/shell/OrganizationOrganizationsView";
 import { useAppStore } from "@/stores/useAppStore";
 
 const sectionComponents = {
@@ -18,11 +18,11 @@ const sectionComponents = {
   settings: SettingsView,
   chat: ChatView,
   "organization-home": OrganizationHomeView,
-  "organization-projects": OrganizationProjectsView,
-  "organization-members": () => (
+  "organization-organizations": OrganizationOrganizationsView,
+  "organization-access": () => (
     <OrganizationAdminView
-      title="Members"
-      description="Manage the people who can operate projects, connectors, and downstream activations."
+      title="Access Management"
+      description="Manage who can access each organization, operate projects, and modify shared data platform settings."
       primaryStat={{ value: "14", copy: "Active members across analytics, ops, and GTM." }}
       secondaryStat={{ value: "3", copy: "Pending invites waiting for owner approval." }}
     />

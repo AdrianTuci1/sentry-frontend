@@ -128,7 +128,7 @@ export function AppSidebar() {
                     />
                     <div className="workspace-title-wrapper group-data-[collapsible=icon]:hidden">
                       <span className="workspace-title-text">{currentOrganization.name}</span>
-                      <span className="workspace-subtitle-text">Projects</span>
+                      <span className="workspace-subtitle-text">Organizations</span>
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -137,38 +137,30 @@ export function AppSidebar() {
                     sideOffset={12}
                     className="sidebar-switcher-dropdown-content"
                   >
-                    <div className="dropdown-section-label">Projects</div>
-                    {organizationProjects.map((workspace) => (
+                    <div className="dropdown-section-label">Organizations</div>
+                    {organizations.map((organization) => (
                       <DropdownMenuItem
-                        key={workspace.id}
-                        onClick={() => selectWorkspace(workspace.id)}
-                        className="dropdown-item-custom"
+                        key={organization.id}
+                        onClick={() => selectOrganization(organization.id)}
+                        className={cn(
+                          "dropdown-item-custom",
+                          currentOrganization.id === organization.id && "selected"
+                        )}
                       >
                         <div className="dropdown-item-left">
                           <div
                             className={cn(
                               "dropdown-workspace-circle",
-                              getWorkspaceGradient(workspace.name)
+                              getWorkspaceGradient(organization.name)
                             )}
                           />
                           <div className="dropdown-item-meta">
-                            <span className="dropdown-workspace-name">{workspace.name}</span>
-                            <span className="dropdown-workspace-plan">{workspace.domain}</span>
+                            <span className="dropdown-workspace-name">{organization.name}</span>
+                            <span className="dropdown-workspace-plan">{organization.owner}</span>
                           </div>
                         </div>
                       </DropdownMenuItem>
                     ))}
-                    <div className="dropdown-separator" />
-                    <DropdownMenuItem
-                      onClick={() => {
-                        const name = prompt("Project name:");
-                        if (name?.trim()) createWorkspace(name.trim());
-                      }}
-                      className="dropdown-create-org-item"
-                    >
-                      <Plus size={16} className="text-[#8E918F]" />
-                      <span className="dropdown-create-org-text">Create new project</span>
-                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
@@ -204,11 +196,8 @@ export function AppSidebar() {
 
         {navigationGroups.map((group, index) => (
           <div key={group.id}>
-            {index > 0 ? <div className="sidebar-group-separator" /> : null}
+            {index > 0 ? null : null}
             <SidebarGroup className="sidebar-group-custom">
-              <SidebarGroupLabel className="sidebar-group-label-custom group-data-[collapsible=icon]:hidden">
-                {group.label}
-              </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu className="sidebar-menu-gap">
                   {group.items.map((item) => {
@@ -247,35 +236,56 @@ export function AppSidebar() {
             <div className="sidebar-group-separator" />
             <SidebarGroup className="sidebar-group-custom">
               <SidebarGroupLabel className="sidebar-group-label-custom group-data-[collapsible=icon]:hidden">
-                Organizations
+                Projects
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu className="sidebar-menu-gap">
-                  {organizations.map((organization) => (
-                    <SidebarMenuItem key={organization.id}>
+                  {organizationProjects.map((workspace) => (
+                    <SidebarMenuItem key={workspace.id}>
                       <SidebarMenuButton
-                        isActive={currentOrganization.id === organization.id}
-                        tooltip={organization.name}
-                        onClick={() => selectOrganization(organization.id)}
+                        isActive={false}
+                        tooltip={workspace.name}
+                        onClick={() => selectWorkspace(workspace.id)}
                         className={cn(
                           "sidebar-nav-button",
-                          currentOrganization.id === organization.id && "active"
+                          activeScope === "project" &&
+                            currentWorkspace.id === workspace.id &&
+                            "active"
                         )}
                       >
                         <div className="sidebar-nav-left">
                           <div
                             className={cn(
                               "sidebar-nav-org-dot",
-                              getWorkspaceGradient(organization.name)
+                              getWorkspaceGradient(workspace.name)
                             )}
                           />
                           <span className="sidebar-nav-label group-data-[collapsible=icon]:hidden">
-                            {organization.name}
+                            {workspace.name}
                           </span>
                         </div>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      tooltip="Create project"
+                      onClick={() => {
+                        const name = prompt("Project name:");
+                        if (name?.trim()) createWorkspace(name.trim());
+                      }}
+                      className="sidebar-nav-button"
+                    >
+                      <div className="sidebar-nav-left">
+                        <div className="sidebar-nav-icon">
+                          <Plus size={18} />
+                        </div>
+                        <span className="sidebar-nav-label group-data-[collapsible=icon]:hidden">
+                          Create project
+                        </span>
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

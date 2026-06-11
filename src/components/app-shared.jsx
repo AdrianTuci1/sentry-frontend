@@ -1,7 +1,7 @@
 export const projectNavigationGroups = [
   {
     id: 'project',
-    label: 'Project',
+    label: null,
     items: [
       { id: 'onboarding', title: 'Onboarding', icon: 'rocket' },
       { id: 'analytics', title: 'Analytics', icon: 'bar-chart-3' },
@@ -22,17 +22,11 @@ export const projectNavigationGroups = [
 export const organizationNavigationGroups = [
   {
     id: 'organization',
-    label: 'Organization',
+    label: null,
     items: [
       { id: 'organization-home', title: 'Home', icon: 'layout-dashboard' },
-      { id: 'organization-projects', title: 'Projects', icon: 'briefcase' },
-    ],
-  },
-  {
-    id: 'management',
-    label: 'Management',
-    items: [
-      { id: 'organization-members', title: 'Members', icon: 'users' },
+      { id: 'organization-organizations', title: 'Organizations', icon: 'briefcase' },
+      { id: 'organization-access', title: 'Access Management', icon: 'users' },
       { id: 'organization-billing', title: 'Billing', icon: 'credit-card' },
       { id: 'organization-settings', title: 'Settings', icon: 'settings' },
     ],
