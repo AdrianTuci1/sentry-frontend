@@ -8,80 +8,30 @@ import {
   Trash2,
   Plus,
   Check,
-  XIcon,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import '@/styles/organization-views.css';
-
-function CreateOrgModal({ open, onClose, onCreate }) {
-  const [name, setName] = useState('');
-  const [plan, setPlan] = useState('Starter');
-
-  if (!open) return null;
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    onCreate(name.trim(), plan);
-    onClose();
-  };
-
-  return (
-    <div className="org-modal-backdrop" onClick={onClose}>
-      <div className="org-modal-frame" onClick={(e) => e.stopPropagation()}>
-        <div className="org-modal">
-          <button className="org-modal-close" onClick={onClose}>
-            <XIcon size={18} />
-          </button>
-          <form className="org-modal-form" onSubmit={handleSubmit}>
-            <div className="org-modal-header">
-              <div className="org-modal-title">Create organization</div>
-              <div className="org-modal-description">Set up a new organization for your account.</div>
-            </div>
-            <div className="org-modal-body">
-              <label className="org-modal-field">
-                <span className="org-modal-field-label">Name</span>
-                <Input className="org-modal-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Organization name" />
-              </label>
-              <label className="org-modal-field">
-                <span className="org-modal-field-label">Plan</span>
-                <select className="org-form-select" value={plan} onChange={(e) => setPlan(e.target.value)}>
-                  <option value="Starter">Starter</option>
-                  <option value="Growth">Growth</option>
-                  <option value="Scale">Scale</option>
-                  <option value="Agency">Agency</option>
-                </select>
-              </label>
-            </div>
-            <div className="org-modal-footer">
-              <Button type="button" variant="outline" className="org-modal-secondary-btn" onClick={onClose}>Cancel</Button>
-              <Button type="submit" className="org-modal-primary-btn"><Plus size={14} /> Create</Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function OrganizationOrganizationsView() {
   const {
     organizations,
     currentOrganization,
-    selectOrganization,
     createOrganization: storeCreateOrg,
   } = useAppStore();
   const [selectedOrg, setSelectedOrg] = useState(null);
-  const [showCreate, setShowCreate] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   const [localOrgs, setLocalOrgs] = useState(organizations);
 
-  // Inline editing fields — local to the selected org
+  // Inline editing fields
   const [editName, setEditName] = useState('');
   const [editPlan, setEditPlan] = useState('');
   const [editOwner, setEditOwner] = useState('');
   const [dirty, setDirty] = useState(false);
+
+  // Create form fields
+  const [createName, setCreateName] = useState('');
+  const [createPlan, setCreatePlan] = useState('Starter');
 
   const handleEditSave = (id, data) => {
     setLocalOrgs((prev) => prev.map((o) => (o.id === id ? { ...o, ...data } : o)));
@@ -93,15 +43,19 @@ export function OrganizationOrganizationsView() {
     setSelectedOrg(null);
   };
 
-  const handleCreate = (name, plan) => {
+  const handleCreate = () => {
+    if (!createName.trim()) return;
     const newOrg = {
       id: `org_${Date.now()}`,
-      name,
-      plan,
+      name: createName.trim(),
+      plan: createPlan,
       owner: 'you@example.com',
     };
     setLocalOrgs((prev) => [...prev, newOrg]);
-    storeCreateOrg(name);
+    storeCreateOrg(createName.trim());
+    setCreating(false);
+    setCreateName('');
+    setCreatePlan('Starter');
   };
 
   const openDetail = (org) => {
@@ -133,35 +87,18 @@ export function OrganizationOrganizationsView() {
                 Edit organization
               </span>
             </div>
-
             <div className="org-detail-form">
               <label className="org-modal-field">
                 <span className="org-modal-field-label">Name</span>
-                <Input
-                  className="org-modal-input"
-                  value={editName}
-                  onChange={(e) => { setEditName(e.target.value); setDirty(true); }}
-                  placeholder="Organization name"
-                />
+                <Input className="org-modal-input" value={editName} onChange={(e) => { setEditName(e.target.value); setDirty(true); }} placeholder="Organization name" />
               </label>
-
               <label className="org-modal-field">
                 <span className="org-modal-field-label">Owner</span>
-                <Input
-                  className="org-modal-input"
-                  value={editOwner}
-                  onChange={(e) => { setEditOwner(e.target.value); setDirty(true); }}
-                  placeholder="owner@example.com"
-                />
+                <Input className="org-modal-input" value={editOwner} onChange={(e) => { setEditOwner(e.target.value); setDirty(true); }} placeholder="owner@example.com" />
               </label>
-
               <label className="org-modal-field">
                 <span className="org-modal-field-label">Plan</span>
-                <select
-                  className="org-form-select"
-                  value={editPlan}
-                  onChange={(e) => { setEditPlan(e.target.value); setDirty(true); }}
-                >
+                <select className="org-form-select" value={editPlan} onChange={(e) => { setEditPlan(e.target.value); setDirty(true); }}>
                   <option value="Starter">Starter</option>
                   <option value="Growth">Growth</option>
                   <option value="Scale">Scale</option>
@@ -169,29 +106,12 @@ export function OrganizationOrganizationsView() {
                 </select>
               </label>
             </div>
-
             {dirty && (
               <div className="org-detail-save-bar">
                 <span className="org-save-hint">Unsaved changes</span>
                 <div className="org-detail-save-actions">
-                  <button
-                    className="org-btn-secondary"
-                    onClick={() => {
-                      setEditName(selectedOrg.name);
-                      setEditPlan(selectedOrg.plan);
-                      setEditOwner(selectedOrg.owner);
-                      setDirty(false);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="org-btn-primary"
-                    onClick={() => handleEditSave(selectedOrg.id, { name: editName, plan: editPlan, owner: editOwner })}
-                  >
-                    <Check size={14} />
-                    Save
-                  </button>
+                  <button className="org-btn-secondary" onClick={() => { setEditName(selectedOrg.name); setEditPlan(selectedOrg.plan); setEditOwner(selectedOrg.owner); setDirty(false); }}>Cancel</button>
+                  <button className="org-btn-primary" onClick={() => handleEditSave(selectedOrg.id, { name: editName, plan: editPlan, owner: editOwner })}><Check size={14} /> Save</button>
                 </div>
               </div>
             )}
@@ -199,31 +119,59 @@ export function OrganizationOrganizationsView() {
 
           <div className="org-section-panel">
             <div className="org-section-header">
-              <span className="org-section-title">
-                <Trash2 size={14} />
-                Delete
-              </span>
+              <span className="org-section-title"><Trash2 size={14} /> Delete</span>
             </div>
             <div className="org-detail-form">
               <div className="org-detail-danger-row">
                 <div>
                   <div className="org-detail-info-label">Delete this organization</div>
-                  <div className="org-detail-info-value" style={{ fontSize: 12, color: '#8E918F', marginTop: 2 }}>
-                    Permanently remove this organization and all its projects. This action cannot be undone.
-                  </div>
+                  <div className="org-detail-info-value" style={{ fontSize: 12, color: '#8E918F', marginTop: 2 }}>Permanently remove this organization and all its projects.</div>
                 </div>
-                <button
-                  className="org-btn-danger"
-                  onClick={() => {
-                    if (window.confirm(`Delete "${selectedOrg.name}"? This cannot be undone.`)) {
-                      handleDelete(selectedOrg.id);
-                    }
-                  }}
-                >
-                  <Trash2 size={14} />
-                  Delete
-                </button>
+                <button className="org-btn-danger" onClick={() => { if (window.confirm(`Delete "${selectedOrg.name}"?`)) handleDelete(selectedOrg.id); }}><Trash2 size={14} /> Delete</button>
               </div>
+            </div>
+          </div>
+        </div>
+      </ViewFrame>
+    );
+  }
+
+  // Create inline view
+  if (creating) {
+    return (
+      <ViewFrame
+        title="New organization"
+        description="Set up a new organization for your account."
+        maxWidthClassName="max-w-3xl"
+      >
+        <div className="org-detail-shell">
+          <button className="org-back-btn" onClick={() => { setCreating(false); setCreateName(''); setCreatePlan('Starter'); }}>
+            <ArrowLeft size={15} />
+            <span>All organizations</span>
+          </button>
+
+          <div className="org-section-panel">
+            <div className="org-section-header">
+              <span className="org-section-title"><Plus size={14} /> New organization</span>
+            </div>
+            <div className="org-detail-form">
+              <label className="org-modal-field">
+                <span className="org-modal-field-label">Name</span>
+                <Input className="org-modal-input" value={createName} onChange={(e) => setCreateName(e.target.value)} placeholder="Organization name" />
+              </label>
+              <label className="org-modal-field">
+                <span className="org-modal-field-label">Plan</span>
+                <select className="org-form-select" value={createPlan} onChange={(e) => setCreatePlan(e.target.value)}>
+                  <option value="Starter">Starter</option>
+                  <option value="Growth">Growth</option>
+                  <option value="Scale">Scale</option>
+                  <option value="Agency">Agency</option>
+                </select>
+              </label>
+            </div>
+            <div className="org-detail-save-bar" style={{ borderTop: '1px solid #25282c', padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button className="org-btn-secondary" onClick={() => { setCreating(false); setCreateName(''); setCreatePlan('Starter'); }}>Cancel</button>
+              <button className="org-btn-primary" onClick={handleCreate}><Plus size={14} /> Create</button>
             </div>
           </div>
         </div>
@@ -237,16 +185,14 @@ export function OrganizationOrganizationsView() {
       title="Organizations"
       description="Switch between or manage all organizations under your account."
       maxWidthClassName="max-w-5xl"
+      actions={
+        <button className="org-btn-secondary" onClick={() => setCreating(true)}>
+          <Plus size={13} />
+          New organization
+        </button>
+      }
     >
-      <div className="org-section-panel">
-        <div className="org-section-header">
-          <span className="org-section-title">All organizations</span>
-          <button className="org-btn-secondary" onClick={() => setShowCreate(true)}>
-            <Plus size={13} />
-            Create
-          </button>
-        </div>
-
+      <div className="org-stack">
         {localOrgs.map((org) => {
           const isCurrent = org.id === currentOrganization.id;
           return (
@@ -276,12 +222,6 @@ export function OrganizationOrganizationsView() {
           );
         })}
       </div>
-
-      <CreateOrgModal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
-        onCreate={handleCreate}
-      />
     </ViewFrame>
   );
 }
