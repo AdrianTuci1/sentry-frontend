@@ -630,7 +630,7 @@ const MindMapNode = ({ store, viewModel }) => {
     }
 };
 
-const FeatureMindMap = observer(({ onNodeClick, showCosts = false }) => {
+const FeatureMindMap = observer(({ onNodeClick, showCosts = false, customData }) => {
     const { workspaceStore } = useStore();
     const [mindMapStore] = useState(() => new FeatureMindMapStore(workspaceStore, onNodeClick));
     const isEditorOpen = workspaceStore.editor.isOpen;
@@ -639,6 +639,18 @@ const FeatureMindMap = observer(({ onNodeClick, showCosts = false }) => {
         .map((node) => node.id)
         .join('|');
     void showCosts;
+
+    // Reactively sync customData into the mock store
+    useEffect(() => {
+        if (customData) {
+            if (customData.connector) workspaceStore.data.connector = customData.connector;
+            if (customData.actionType) workspaceStore.data.actionType = customData.actionType;
+            if (customData.origin) workspaceStore.data.origin = customData.origin;
+            if (customData.adjustedData) workspaceStore.data.adjustedData = customData.adjustedData;
+            if (customData.group) workspaceStore.data.group = customData.group;
+            if (customData.insight) workspaceStore.data.insight = customData.insight;
+        }
+    }, [customData, workspaceStore]);
 
     useEffect(() => {
         mindMapStore.setOnNodeClick(onNodeClick);
@@ -679,8 +691,59 @@ const FeatureMindMap = observer(({ onNodeClick, showCosts = false }) => {
         mindMapStore.ui.syncInsightDock(insightIds);
     }, [mindMapStore, insightDockSignature]);
 
+    // Canvas panning and zooming state
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+    const handleWheel = (event) => {
+        event.preventDefault();
+        const zoomFactor = 1.05;
+        let newScale = workspaceStore.ui.scale;
+        if (event.deltaY < 0) {
+            newScale = Math.min(newScale * zoomFactor, 2.5);
+        } else {
+            newScale = Math.max(newScale / zoomFactor, 0.4);
+        }
+        workspaceStore.ui.setScale(newScale);
+    };
+
+    const handleMouseDown = (event) => {
+        // Only trigger panning when clicking the background canvas, not on cards or menu docks
+        if (
+            event.target === event.currentTarget ||
+            event.target.tagName === 'svg' ||
+            event.target.id === 'canvas-grid' ||
+            (event.target.classList && event.target.classList.contains('absolute') && event.target.classList.contains('inset-0'))
+        ) {
+            setIsDragging(true);
+            setDragStart({
+                x: event.clientX - workspaceStore.ui.pan.x,
+                y: event.clientY - workspaceStore.ui.pan.y
+            });
+        }
+    };
+
+    const handleMouseMove = (event) => {
+        if (!isDragging) return;
+        const dx = event.clientX - dragStart.x;
+        const dy = event.clientY - dragStart.y;
+        workspaceStore.ui.setPan(dx, dy);
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
     return (
-        <div className="absolute inset-0 overflow-hidden">
+        <div 
+            className="absolute inset-0 overflow-hidden select-none"
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+        >
             <div
                 className="relative flex h-full w-full items-center justify-center transition-transform duration-75 ease-out will-change-transform"
                 style={{ transform: `translate(${mindMapStore.ui.pan.x}px, ${mindMapStore.ui.pan.y}px) scale(${mindMapStore.ui.scale})` }}

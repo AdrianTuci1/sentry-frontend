@@ -1,9 +1,14 @@
+import { makeAutoObservable } from 'mobx';
 import { mockData } from './mockData';
 
 class MockUIStore {
     scale = 1;
     pan = { x: 0, y: 0 };
     selectedItems = new Set();
+    
+    constructor() {
+        makeAutoObservable(this);
+    }
     
     // We keep these empty since the standalone mode just mocks UI action events:
     toggleSelection() {}
@@ -12,6 +17,14 @@ class MockUIStore {
     setActiveMindMapStore() {}
     clearActiveMindMapStore() {}
     isRecommendationAccepted() { return false; }
+    
+    setPan(x, y) {
+        this.pan = { x, y };
+    }
+    
+    setScale(scale) {
+        this.scale = scale;
+    }
 }
 
 class MockDataStore {
@@ -24,6 +37,10 @@ class MockDataStore {
     mindmapYaml = mockData.mindmapYaml;
     sourceMetadata = mockData.sourceMetadata;
     origin = [];
+
+    constructor() {
+        makeAutoObservable(this);
+    }
 }
 
 class MockEditorStore {
