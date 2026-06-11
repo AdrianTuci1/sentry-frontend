@@ -29,6 +29,7 @@ export function DashboardLayout({ layoutId, className, isNested = true }) {
 
   return (
     <div
+      data-layout-id={layoutId}
       className={cn(
         "dashboard-layout-container",
         isNested ? "nested" : "flat",

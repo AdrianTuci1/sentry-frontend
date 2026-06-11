@@ -1,78 +1,131 @@
 import {
   BarChart3,
-  GitBranch,
-  Plug,
-  MessageSquare,
+  Briefcase,
   ChevronDown,
-  Plus,
-  Settings,
+  CreditCard,
+  GitBranch,
+  LayoutDashboard,
+  MessageSquare,
   PanelLeft,
   PanelLeftClose,
+  Plus,
+  Plug,
+  Rocket,
+  Settings,
+  Undo2,
+  Users,
 } from 'lucide-react';
+import { getNavigationGroups } from '@/components/app-shared';
 import { useAppStore } from '@/stores/useAppStore';
 
 const sectionIcons = {
-  BarChart3, GitBranch, Plug, MessageSquare,
+  'bar-chart-3': BarChart3,
+  briefcase: Briefcase,
+  'credit-card': CreditCard,
+  'git-branch': GitBranch,
+  'layout-dashboard': LayoutDashboard,
+  'message-square': MessageSquare,
+  plug: Plug,
+  rocket: Rocket,
+  settings: Settings,
+  users: Users,
 };
 
 export function Sidebar() {
   const {
+    currentOrganization,
     currentWorkspace,
     workspaces,
+    activeScope,
     activeSection,
     sidebarCollapsed,
-    sections,
     setActiveSection,
     selectWorkspace,
     createWorkspace,
+    goToOrganizationHome,
     toggleSidebar,
   } = useAppStore();
+
+  const navigationGroups = getNavigationGroups(activeScope);
+  const sidebarTitle =
+    activeScope === 'organization' ? currentOrganization.name : currentWorkspace.name;
 
   return (
     <aside
       className={`flex flex-col h-full bg-bg-secondary border-r border-border transition-all duration-200 ${
-        sidebarCollapsed ? 'w-16' : 'w-64'
+        sidebarCollapsed ? 'w-16' : 'w-72'
       }`}
     >
-      {/* Workspace Selector */}
-      <div className="h-12 border-b border-border flex items-center px-3 shrink-0">
+      <div className="h-14 border-b border-border flex items-center px-3 shrink-0">
         {!sidebarCollapsed ? (
           <div className="flex items-center gap-2 w-full">
             <div className="relative group w-full">
-              <button className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-bg-hover transition-colors">
-                <span className="text-sm font-medium text-text-primary truncate">
-                  {currentWorkspace.name}
-                </span>
+              <button className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-bg-hover transition-colors">
+                <div className="min-w-0 text-left">
+                  <div className="text-[11px] uppercase tracking-[0.16em] text-text-muted">
+                    Projects
+                  </div>
+                  <div className="text-sm font-medium text-text-primary truncate">
+                    {sidebarTitle}
+                  </div>
+                </div>
                 <ChevronDown size={14} className="text-text-muted shrink-0" />
               </button>
-              <div className="absolute top-full left-0 w-56 mt-1 bg-bg-tertiary border border-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-1">
-                <div className="px-3 py-2 text-xs text-text-muted font-medium uppercase tracking-wider">
-                  Workspaces
+
+              <div className="absolute top-full left-0 right-0 mt-2 bg-bg-tertiary border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-2">
+                <div className="px-3 py-2 text-[11px] uppercase tracking-[0.14em] text-text-muted">
+                  Projects
                 </div>
-                {workspaces.map((ws) => (
-                  <button
-                    key={ws.id}
-                    onClick={() => selectWorkspace(ws.id)}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-bg-hover transition-colors ${
-                      ws.id === currentWorkspace.id ? 'text-accent' : 'text-text-primary'
-                    }`}
-                  >
-                    {ws.name}
-                  </button>
-                ))}
-                <div className="border-t border-border my-1" />
+                {workspaces.map((workspace) => {
+                  const isSelected = workspace.id === currentWorkspace.id;
+                  return (
+                    <button
+                      key={workspace.id}
+                      onClick={() => selectWorkspace(workspace.id)}
+                      className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
+                        isSelected && activeScope === 'project'
+                          ? 'text-accent bg-bg-hover'
+                          : 'text-text-primary hover:bg-bg-hover'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="truncate font-medium">{workspace.name}</div>
+                          <div className="truncate text-xs text-text-muted">{workspace.domain}</div>
+                        </div>
+                        <span className="text-xs text-text-muted">{workspace.monthlyEvents}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+
+                <div className="border-t border-border my-2" />
+
+                <button
+                  onClick={goToOrganizationHome}
+                  className={`w-full text-left px-3 py-2.5 text-sm transition-colors flex items-center gap-2 ${
+                    activeScope === 'organization'
+                      ? 'text-accent bg-bg-hover'
+                      : 'text-text-primary hover:bg-bg-hover'
+                  }`}
+                >
+                  <Undo2 size={14} />
+                  Back to organization
+                </button>
+
                 <button
                   onClick={() => {
-                    const name = prompt('Workspace name:');
+                    const name = prompt('Project name:');
                     if (name?.trim()) createWorkspace(name.trim());
                   }}
-                  className="w-full text-left px-3 py-2 text-sm text-text-primary hover:bg-bg-hover transition-colors flex items-center gap-2"
+                  className="w-full text-left px-3 py-2.5 text-sm text-text-primary hover:bg-bg-hover transition-colors flex items-center gap-2"
                 >
                   <Plus size={14} />
-                  New Workspace
+                  Create new project
                 </button>
               </div>
             </div>
+
             <button
               onClick={toggleSidebar}
               className="p-1.5 rounded-md hover:bg-bg-hover text-text-muted transition-colors"
@@ -90,62 +143,55 @@ export function Sidebar() {
         )}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2">
-        <div className={`${sidebarCollapsed ? '' : 'px-2 mb-2 text-xs text-text-muted font-medium uppercase tracking-wider'}`}>
-          {!sidebarCollapsed && 'Workspace'}
-        </div>
-        {sections.slice(0, 2).map((section) => {
-          const Icon = sectionIcons[section.icon];
-          return (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-md mb-1 transition-colors ${
-                activeSection === section.id
-                  ? 'bg-bg-hover text-accent'
-                  : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
-              } ${sidebarCollapsed ? 'justify-center' : ''}`}
-              title={sidebarCollapsed ? section.label : ''}
-            >
-              <Icon size={18} />
-              {!sidebarCollapsed && <span className="text-sm">{section.label}</span>}
-            </button>
-          );
-        })}
+      <nav className="flex-1 overflow-y-auto py-4 px-2">
+        {activeScope === 'project' && !sidebarCollapsed ? (
+          <button
+            onClick={goToOrganizationHome}
+            className="mb-4 w-full flex items-center gap-3 px-3 py-2 rounded-lg border border-border text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+          >
+            <Undo2 size={16} />
+            <span className="text-sm">Back to organization</span>
+          </button>
+        ) : null}
 
-        <div className={`${sidebarCollapsed ? 'mt-4' : 'mt-6 px-2 mb-2 text-xs text-text-muted font-medium uppercase tracking-wider'}`}>
-          {!sidebarCollapsed && 'Connect'}
-        </div>
-        {sections.slice(2).map((section) => {
-          const Icon = sectionIcons[section.icon];
-          return (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-md mb-1 transition-colors ${
-                activeSection === section.id
-                  ? 'bg-bg-hover text-accent'
-                  : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
-              } ${sidebarCollapsed ? 'justify-center' : ''}`}
-              title={sidebarCollapsed ? section.label : ''}
-            >
-              <Icon size={18} />
-              {!sidebarCollapsed && <span className="text-sm">{section.label}</span>}
-            </button>
-          );
-        })}
+        {navigationGroups.map((group, groupIndex) => (
+          <div key={group.id} className={groupIndex > 0 ? 'mt-6' : ''}>
+            {!sidebarCollapsed ? (
+              <div className="px-2 mb-2 text-xs text-text-muted font-medium uppercase tracking-wider">
+                {group.label}
+              </div>
+            ) : null}
+
+            {group.items.map((section) => {
+              const Icon = sectionIcons[section.icon];
+              return (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+                    activeSection === section.id
+                      ? 'bg-bg-hover text-accent'
+                      : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
+                  } ${sidebarCollapsed ? 'justify-center' : ''}`}
+                  title={sidebarCollapsed ? section.title : ''}
+                >
+                  <Icon size={18} />
+                  {!sidebarCollapsed ? <span className="text-sm">{section.title}</span> : null}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
-      {/* Footer */}
       <div className="border-t border-border p-3 shrink-0">
         {!sidebarCollapsed ? (
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center">
-                <span className="text-xs font-medium text-accent">U</span>
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-text-primary truncate">
+                {currentOrganization.owner}
               </div>
-              <div className="text-sm text-text-primary">User</div>
+              <div className="text-xs text-text-muted">{currentOrganization.plan} plan</div>
             </div>
             <button className="p-1.5 rounded-md hover:bg-bg-hover text-text-muted transition-colors">
               <Settings size={16} />
@@ -154,7 +200,7 @@ export function Sidebar() {
         ) : (
           <div className="flex justify-center">
             <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-              <span className="text-xs font-medium text-accent">U</span>
+              <span className="text-xs font-medium text-accent">A</span>
             </div>
           </div>
         )}

@@ -6,8 +6,10 @@ import { GraphView } from "@/components/shell/GraphView";
 import { SettingsView } from "@/components/shell/SettingsView";
 import { ChatView } from "@/components/shell/ChatView";
 import { OrganizationHomeView } from "@/components/shell/OrganizationHomeView";
-import { OrganizationAdminView } from "@/components/shell/OrganizationAdminView";
 import { OrganizationOrganizationsView } from "@/components/shell/OrganizationOrganizationsView";
+import { OrganizationAccessView } from "@/components/shell/OrganizationAccessView";
+import { OrganizationBillingView } from "@/components/shell/OrganizationBillingView";
+import { OrganizationSettingsView } from "@/components/shell/OrganizationSettingsView";
 import { useAppStore } from "@/stores/useAppStore";
 
 const sectionComponents = {
@@ -19,30 +21,9 @@ const sectionComponents = {
   chat: ChatView,
   "organization-home": OrganizationHomeView,
   "organization-organizations": OrganizationOrganizationsView,
-  "organization-access": () => (
-    <OrganizationAdminView
-      title="Access Management"
-      description="Manage who can access each organization, operate projects, and modify shared data platform settings."
-      primaryStat={{ value: "14", copy: "Active members across analytics, ops, and GTM." }}
-      secondaryStat={{ value: "3", copy: "Pending invites waiting for owner approval." }}
-    />
-  ),
-  "organization-billing": () => (
-    <OrganizationAdminView
-      title="Billing"
-      description="Track infrastructure spend, warehouse pressure, and project profitability."
-      primaryStat={{ value: "$2.4k", copy: "Projected monthly managed infrastructure cost." }}
-      secondaryStat={{ value: "91%", copy: "Spend currently attributed to billable projects." }}
-    />
-  ),
-  "organization-settings": () => (
-    <OrganizationAdminView
-      title="Organization Settings"
-      description="Configure organization-wide defaults, governance, and managed data platform behavior."
-      primaryStat={{ value: "6", copy: "Default rules active across all connected projects." }}
-      secondaryStat={{ value: "2", copy: "Pending account-level changes awaiting review." }}
-    />
-  ),
+  "organization-access": OrganizationAccessView,
+  "organization-billing": OrganizationBillingView,
+  "organization-settings": OrganizationSettingsView,
 };
 
 function App() {

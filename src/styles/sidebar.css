@@ -248,6 +248,25 @@
   font-weight: 500;
 }
 
+.dropdown-section-separator {
+  height: 1px;
+  background-color: #25282C;
+  margin: 4px 8px;
+}
+
+.dropdown-circle-plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1C1C1F;
+  border: 1px dashed #3A3D42;
+  color: #8E918F;
+}
+
+.dropdown-item-create:hover .dropdown-workspace-name {
+  color: #FFFFFF;
+}
+
 /* Sidebar Content Panel */
 .sidebar-content-custom {
   background-color: transparent !important;
@@ -333,6 +352,7 @@
 
 .sidebar-group-separator {
   margin: 6px 0;
+  border-bottom: 1px solid #25282C;
 }
 
 .sidebar-back-link-wrap {

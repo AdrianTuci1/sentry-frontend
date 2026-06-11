@@ -1,34 +1,81 @@
 export function SegmentedBarWidget({ data, config }) {
-  const { segments, total } = data;
+  const { segments, total, summaryValue, summaryLabel, actionLabel } = data;
+  const resolvedTotal = total || segments?.reduce((acc, segment) => acc + segment.value, 0) || 0;
+  const compact = Boolean(config?.compact);
+  let cumulativeOffset = 0;
+  const scaleMarkers = segments?.map((segment, index) => {
+    const percent = resolvedTotal > 0 ? (segment.value / resolvedTotal) * 100 : 0;
+    const marker = {
+      key: segment.key,
+      label: segment.displayValue || `${Math.round(percent)}%`,
+      offset: cumulativeOffset,
+      align: index === 0 ? 'start' : 'center',
+    };
+    cumulativeOffset += percent;
+    return marker;
+  }) || [];
 
   return (
-    <div className="h-full p-4 flex flex-col justify-center">
-      <div className="flex h-6 bg-bg-primary rounded-sm overflow-hidden">
+    <div className={`segmented-bar-widget-container ${compact ? 'is-compact' : ''}`}>
+      {(summaryValue || actionLabel) ? (
+        <div className="segmented-bar-widget-toolbar">
+          <div className="segmented-bar-widget-summary">
+            {summaryValue ? (
+              <div className="segmented-bar-widget-value">
+                {summaryValue}
+                {summaryLabel ? <span>{summaryLabel}</span> : null}
+              </div>
+            ) : null}
+          </div>
+          {actionLabel ? <span className="segmented-bar-widget-action">{actionLabel}</span> : null}
+        </div>
+      ) : null}
+
+      <div className="segmented-bar-widget-scale">
+        {scaleMarkers.map((marker) => (
+          <div
+            key={marker.key}
+            className={`segmented-bar-widget-scale-item is-${marker.align}`}
+            style={{
+              left: `${marker.offset}%`,
+              transform: marker.align === 'center' ? 'translateX(-50%)' : 'none',
+            }}
+          >
+            <span>{marker.label}</span>
+            <div className="segmented-bar-widget-scale-mark" />
+          </div>
+        ))}
+      </div>
+
+      <div className="segmented-bar-widget-bar">
         {segments?.map((segment, i) => {
-          const percent = total > 0 ? (segment.value / total) * 100 : 0;
+          const percent = resolvedTotal > 0 ? (segment.value / resolvedTotal) * 100 : 0;
           return (
             <div
               key={segment.key}
-              className="h-full transition-all hover:opacity-80"
+              className="segmented-bar-widget-bar-segment"
               style={{
                 width: `${percent}%`,
                 backgroundColor: segment.color,
+                borderTopLeftRadius: i === 0 ? '16px' : '0',
+                borderBottomLeftRadius: i === 0 ? '16px' : '0',
+                borderTopRightRadius: i === segments.length - 1 ? '16px' : '0',
+                borderBottomRightRadius: i === segments.length - 1 ? '16px' : '0',
               }}
-              title={`${segment.label}: ${segment.value}`}
+              title={`${segment.label}: ${segment.displayValue || segment.value}`}
             />
           );
         })}
       </div>
-      <div className="flex justify-between mt-2">
+
+      <div className="segmented-bar-widget-legend">
         {segments?.map((segment) => (
-          <div key={segment.key} className="flex items-center gap-1.5">
+          <div key={segment.key} className="segmented-bar-widget-legend-item">
             <div
-              className="w-2 h-2 rounded-full"
+              className="segmented-bar-widget-legend-dot"
               style={{ backgroundColor: segment.color }}
             />
-            <span className="text-xs text-text-muted">
-              {segment.label}: {segment.value}
-            </span>
+            <span>{segment.label}</span>
           </div>
         ))}
       </div>

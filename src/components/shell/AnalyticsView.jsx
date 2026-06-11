@@ -2,10 +2,12 @@ import { useAppStore } from "@/stores/useAppStore";
 import { DashboardLayout } from "@/components/widgets/DashboardLayout";
 import { ViewFrame } from "@/components/shell/ViewFrame";
 import { MarketingView } from "@/components/shell/MarketingView";
+import { SalesView } from "@/components/shell/SalesView";
 
 const viewLayouts = {
   servers: "server-monitor",
   financial: "campaign-sales",
+  sales: "campaign-sales",
   marketing: "marketing-performance",
   web: "analytics",
 };
@@ -18,6 +20,8 @@ export function AnalyticsView() {
     <ViewFrame>
       {activeAnalyticsView === "marketing" ? (
         <MarketingView />
+      ) : activeAnalyticsView === "sales" ? (
+        <SalesView />
       ) : (
         <DashboardLayout layoutId={layoutId} isNested={false} />
       )}

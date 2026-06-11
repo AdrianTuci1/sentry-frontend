@@ -1,70 +1,118 @@
-import React from 'react';
-import { Check, Clock, RotateCcw, MoreVertical } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { ArrowUpDown, Check, CircleMinus, Clock3, MoreHorizontal } from 'lucide-react';
 
 export function SalesTransactionsWidget({ data }) {
   const { transactions = [] } = data;
+  const [sortKey, setSortKey] = useState('totalRevenue');
+  const [sortDirection, setSortDirection] = useState('desc');
+
+  const columns = [
+    { key: 'id', label: 'ID', sortable: true },
+    { key: 'customer', label: 'Customer', sortable: true },
+    { key: 'product', label: 'Product', sortable: true },
+    { key: 'status', label: 'Status', sortable: true },
+    { key: 'qty', label: 'Qty', sortable: true },
+    { key: 'unitPrice', label: 'Unit Price', sortable: true },
+    { key: 'totalRevenue', label: 'Total Revenue', sortable: true },
+    { key: 'actions', label: 'Actions', sortable: false },
+  ];
 
   const statusConfig = {
-    completed: { color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: Check, label: 'Completed' },
-    pending: { color: 'text-amber-400 bg-amber-500/10 border-amber-500/20', icon: Clock, label: 'Pending' },
-    refunded: { color: 'text-rose-400 bg-rose-500/10 border-rose-500/20', icon: RotateCcw, label: 'Refunded' },
+    success: { className: 'success', icon: Check, label: 'Success' },
+    pending: { className: 'pending', icon: Clock3, label: 'Pending' },
+    refunded: { className: 'refunded', icon: CircleMinus, label: 'Refunded' },
+  };
+
+  const normalizeValue = (transaction, key) => {
+    if (key === 'qty') return transaction.qty;
+    if (key === 'unitPrice' || key === 'totalRevenue') {
+      return Number(String(transaction[key]).replace(/[$,]/g, ''));
+    }
+    if (key === 'id') {
+      return Number(String(transaction.id).replace(/\D/g, ''));
+    }
+    return String(transaction[key] || '').toLowerCase();
+  };
+
+  const sortedTransactions = useMemo(() => {
+    const list = [...transactions];
+    list.sort((a, b) => {
+      const aValue = normalizeValue(a, sortKey);
+      const bValue = normalizeValue(b, sortKey);
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return list;
+  }, [transactions, sortKey, sortDirection]);
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
+    setSortKey(key);
+    setSortDirection('asc');
   };
 
   return (
-    <div className="h-full overflow-y-auto pr-1 select-none scrollbar-thin flex flex-col">
-      <div className="w-full min-w-[700px]">
-        {/* Table header */}
-        <div className="flex items-center justify-between px-6 py-2 bg-bg-primary/20 border-b border-border text-[10px] text-text-muted font-medium uppercase tracking-wider select-none shrink-0">
-          <div className="w-24 shrink-0">ID</div>
-          <div className="w-40 shrink-0">Customer</div>
-          <div className="flex-1">Product</div>
-          <div className="w-28 shrink-0">Status</div>
-          <div className="w-16 shrink-0 text-right">Qty</div>
-          <div className="w-8 shrink-0"></div>
+    <div className="sales-transactions-widget">
+      <div className="sales-transactions-table">
+        <div className="sales-transactions-row sales-transactions-header-row">
+          <div className="sales-transactions-checkbox" />
+          {columns.map((column) => (
+            column.sortable ? (
+              <button
+                key={column.key}
+                type="button"
+                className={`sales-transactions-header-cell sales-transactions-header-button ${sortKey === column.key ? 'is-active' : ''}`}
+                onClick={() => handleSort(column.key)}
+              >
+                <span>{column.label}</span>
+                <ArrowUpDown size={14} className={sortDirection === 'desc' && sortKey === column.key ? 'is-desc' : ''} />
+              </button>
+            ) : (
+              <div key={column.key} className="sales-transactions-header-cell align-right">
+                <span>{column.label}</span>
+              </div>
+            )
+          ))}
         </div>
 
-        {/* Rows */}
-        {transactions.map((tx, i) => {
-          const status = statusConfig[tx.status.toLowerCase()] || statusConfig.completed;
+        {sortedTransactions.map((tx, i) => {
+          const status = statusConfig[tx.status.toLowerCase()] || statusConfig.success;
           const Icon = status.icon;
 
           return (
-            <div
-              key={i}
-              className="flex items-center justify-between px-6 py-2.5 border-b border-border last:border-0 hover:bg-bg-hover/10 transition-colors"
-            >
-              {/* ID */}
-              <div className="w-24 shrink-0 text-xs font-mono font-medium text-text-primary">
+            <div key={i} className="sales-transactions-row">
+              <div className="sales-transactions-checkbox" />
+              <div className="sales-transactions-id">
                 {tx.id}
               </div>
-
-              {/* Customer */}
-              <div className="w-40 shrink-0 text-xs font-medium text-text-secondary truncate">
+              <div className="sales-transactions-customer">
                 {tx.customer}
               </div>
-
-              {/* Product */}
-              <div className="flex-1 text-xs text-text-muted truncate pr-4">
+              <div className="sales-transactions-product">
                 {tx.product}
               </div>
-
-              {/* Status */}
-              <div className="w-28 shrink-0">
-                <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${status.color}`}>
-                  <Icon size={10} />
+              <div className="sales-transactions-status-cell">
+                <span className={`sales-transactions-status-pill ${status.className}`}>
+                  <Icon size={14} />
                   {status.label}
                 </span>
               </div>
-
-              {/* Qty */}
-              <div className="w-16 shrink-0 text-xs font-mono font-medium text-text-secondary text-right tabular-nums">
+              <div className="sales-transactions-qty">
                 {tx.qty}
               </div>
-
-              {/* Actions */}
-              <div className="w-8 shrink-0 flex justify-end">
-                <button className="p-1 rounded hover:bg-bg-hover text-text-muted shrink-0">
-                  <MoreVertical size={12} />
+              <div className="sales-transactions-price">
+                {tx.unitPrice}
+              </div>
+              <div className="sales-transactions-total">
+                {tx.totalRevenue}
+              </div>
+              <div className="sales-transactions-actions">
+                <button className="sales-transactions-menu" type="button" aria-label={`Actions for ${tx.id}`}>
+                  <MoreHorizontal size={20} />
                 </button>
               </div>
             </div>

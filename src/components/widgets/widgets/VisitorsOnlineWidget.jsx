@@ -1,3 +1,5 @@
+import { WEB_WIDGET_BLUE, WEB_WIDGET_BLUE_MUTED } from '../webWidgetTheme';
+
 export function VisitorsOnlineWidget({ data }) {
   const { totalOnline = 0, devices = [] } = data;
 
@@ -7,10 +9,16 @@ export function VisitorsOnlineWidget({ data }) {
       <div className="flex flex-col justify-center shrink-0">
         <div className="flex items-center gap-2 mb-1">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            <span
+              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+              style={{ backgroundColor: WEB_WIDGET_BLUE_MUTED }}
+            ></span>
+            <span
+              className="relative inline-flex rounded-full h-2 w-2"
+              style={{ backgroundColor: WEB_WIDGET_BLUE }}
+            ></span>
           </span>
-          <span className="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest">Live</span>
+          <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: WEB_WIDGET_BLUE }}>Live</span>
         </div>
         <span className="text-3xl font-semibold text-text-primary tabular-nums">
           {totalOnline.toLocaleString()}
@@ -33,7 +41,7 @@ export function VisitorsOnlineWidget({ data }) {
                 className="h-full rounded-full transition-all"
                 style={{
                   width: `${device.percent}%`,
-                  backgroundColor: device.color || '#A8C7FA'
+                  backgroundColor: device.color || WEB_WIDGET_BLUE
                 }}
               />
             </div>

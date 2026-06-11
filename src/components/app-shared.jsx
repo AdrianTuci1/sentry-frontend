@@ -21,13 +21,20 @@ export const projectNavigationGroups = [
 
 export const organizationNavigationGroups = [
   {
-    id: 'organization',
+    id: 'organization-general',
     label: null,
     items: [
       { id: 'organization-home', title: 'Home', icon: 'layout-dashboard' },
       { id: 'organization-organizations', title: 'Organizations', icon: 'briefcase' },
-      { id: 'organization-access', title: 'Access Management', icon: 'users' },
       { id: 'organization-billing', title: 'Billing', icon: 'credit-card' },
+    ],
+  },
+  {
+    id: 'organization-management',
+    label: 'Management',
+    items: [
+      { id: 'organization-stats', title: 'Stats', icon: 'bar-chart-3' },
+      { id: 'organization-access', title: 'Access Management', icon: 'users' },
       { id: 'organization-settings', title: 'Settings', icon: 'settings' },
     ],
   },

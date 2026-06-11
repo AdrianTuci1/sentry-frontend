@@ -1,85 +1,89 @@
 import React from 'react';
-import { GitBranch, MoreVertical } from 'lucide-react';
+import { ArrowRight, GitBranch, MoreVertical, Server } from 'lucide-react';
+
+const statusMap = {
+  healthy: { label: 'Healthy', className: 'healthy' },
+  stable: { label: 'Stable', className: 'stable' },
+  warning: { label: 'Warning', className: 'warning' },
+  error: { label: 'Error', className: 'error' },
+};
+
+const cacheMap = {
+  cached: { label: 'Cached', className: 'cached' },
+  cold: { label: 'Cold', className: 'cold' },
+  warm: { label: 'Warm', className: 'warm' },
+};
 
 export function ActiveDeploymentsWidget({ data }) {
   const { deployments = [] } = data;
 
-  const statusColors = {
-    healthy: { text: '#4ADE80', label: 'Healthy' },
-    stable: { text: '#60A5FA', label: 'Stable' },
-    warning: { text: '#FBBF24', label: 'Warning' },
-    error: { text: '#F87171', label: 'Error' },
-  };
-
-  const cacheColors = {
-    cached: { text: '#4ADE80', label: 'Cached' },
-    cold: { text: '#FBBF24', label: 'Cold' },
-  };
-
   return (
-    <div className="h-full overflow-y-auto pr-1 select-none scrollbar-thin flex flex-col">
-      <div className="w-full min-w-[700px]">
-        {deployments.map((dep, i) => {
-          const status = statusColors[dep.status.toLowerCase()] || { text: '#8E918F', label: dep.status };
-          const cache = cacheColors[dep.cache.toLowerCase()] || { text: '#8E918F', label: dep.cache };
+    <section className="server-deployments-shell">
+      <header className="server-deployments-header">
+        <div className="server-deployments-title">
+          <Server size={18} />
+          <span>Active deployments</span>
+        </div>
 
-          return (
-            <div
-              key={i}
-              className="flex items-center justify-between px-6 py-3 border-b border-border last:border-0 hover:bg-bg-hover/10 transition-colors"
-            >
-              {/* Col 1: Version & Env */}
-              <div className="w-28 shrink-0">
-                <span className="text-xs font-semibold text-text-primary block">
-                  {dep.version}
-                </span>
-                <span className="text-[10px] text-text-muted mt-0.5 block">
-                  {dep.environment}
-                </span>
-              </div>
+        <button type="button" className="server-deployments-viewall">
+          <span>View all</span>
+          <ArrowRight size={16} />
+        </button>
+      </header>
 
-              {/* Col 2: Status */}
-              <div className="w-24 shrink-0 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: status.text }} />
-                <span className="text-xs text-text-secondary font-medium">
-                  {status.label}
-                </span>
-              </div>
+      <div className="server-deployments-body">
+        <div className="server-deployments-table">
+          {deployments.map((deployment, index) => {
+            const status = statusMap[String(deployment.status || '').toLowerCase()] || {
+              label: deployment.status,
+              className: 'stable',
+            };
+            const cache = cacheMap[String(deployment.cache || '').toLowerCase()] || {
+              label: deployment.cache,
+              className: 'warm',
+            };
 
-              {/* Col 3: Branch & Commit */}
-              <div className="flex-1 min-w-0 pr-4">
-                <div className="flex items-center gap-1">
-                  <GitBranch size={11} className="text-text-muted shrink-0" />
-                  <span className="text-xs font-medium text-text-primary truncate">
-                    {dep.branch}
-                  </span>
+            return (
+              <article key={`${deployment.version}-${index}`} className="server-deployments-row">
+                <div className="server-deployments-version">
+                  <div className="server-deployments-version-name">{deployment.version}</div>
+                  <div className="server-deployments-version-env">{deployment.environment}</div>
                 </div>
-                <span className="text-[10px] text-text-muted truncate block mt-0.5">
-                  {dep.commit}
-                </span>
-              </div>
 
-              {/* Col 4: Date */}
-              <div className="w-20 shrink-0 text-xs text-text-muted">
-                {dep.date}
-              </div>
+                <div className={`server-deployments-badge ${status.className}`}>
+                  <span className="server-deployments-badge-dot" />
+                  <span>{status.label}</span>
+                </div>
 
-              {/* Col 5: Cache Status */}
-              <div className="w-24 shrink-0 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cache.text }} />
-                <span className="text-xs text-text-secondary">
-                  {cache.label}
-                </span>
-              </div>
+                <div className="server-deployments-branch">
+                  <div className="server-deployments-branch-name">
+                    <GitBranch size={18} />
+                    <span>{deployment.branch}</span>
+                  </div>
+                  <div className="server-deployments-branch-meta">{deployment.commit}</div>
+                </div>
 
-              {/* Col 6: Menu */}
-              <button className="p-1 rounded hover:bg-bg-hover text-text-muted shrink-0">
-                <MoreVertical size={14} />
-              </button>
-            </div>
-          );
-        })}
+                <div className="server-deployments-date">{deployment.date}</div>
+
+                <div className={`server-deployments-cache ${cache.className}`}>
+                  <span className="server-deployments-badge-dot" />
+                  <span>{cache.label}</span>
+                </div>
+
+                <div className="server-deployments-actions">
+                  <button
+                    type="button"
+                    className="server-deployments-menu"
+                    aria-label={`More actions for ${deployment.version}`}
+                  >
+                    <MoreVertical size={20} />
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

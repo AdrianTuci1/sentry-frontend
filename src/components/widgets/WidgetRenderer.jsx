@@ -18,6 +18,7 @@ import { VisitorsOnlineWidget } from './widgets/VisitorsOnlineWidget';
 import { CoreWebVitalsWidget } from './widgets/CoreWebVitalsWidget';
 import { StackedBarChartWidget } from './widgets/StackedBarChartWidget';
 import { BudgetGaugeWidget } from './widgets/BudgetGaugeWidget';
+import { ActiveDeploymentsWidget } from './widgets/ActiveDeploymentsWidget';
 import '@/styles/dashboard.css';
 
 const widgetComponents = {
@@ -35,6 +36,7 @@ const widgetComponents = {
   [WIDGET_TYPES.CORE_WEB_VITALS]: CoreWebVitalsWidget,
   [WIDGET_TYPES.STACKED_BAR_CHART]: StackedBarChartWidget,
   [WIDGET_TYPES.BUDGET_GAUGE]: BudgetGaugeWidget,
+  [WIDGET_TYPES.ACTIVE_DEPLOYMENTS]: ActiveDeploymentsWidget,
 };
 
 export function WidgetRenderer({ spec }) {
@@ -46,7 +48,7 @@ export function WidgetRenderer({ spec }) {
   const WidgetComponent = widgetComponents[type];
   if (!WidgetComponent) {
     return (
-      <div className={`${sizeClass} widget-card`}>
+      <div className={`${sizeClass} widget-card widget-id-${id}`}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '16px' }}>
           <span style={{ color: '#8E918F', fontSize: '14px' }}>Unknown widget type: {type}</span>
         </div>
@@ -55,7 +57,7 @@ export function WidgetRenderer({ spec }) {
   }
 
   return (
-    <div className={`${sizeClass} widget-card`}>
+    <div className={`${sizeClass} widget-card widget-id-${id}`}>
       {/* Widget Header */}
       {title && (
         <div className="widget-header">

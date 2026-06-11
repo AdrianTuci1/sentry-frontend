@@ -1,5 +1,6 @@
 export function TextInsightWidget({ data, config }) {
-  const { text, highlights } = data;
+  const { text, highlights, actionLabel } = data;
+  const compact = Boolean(config?.compact);
 
   const renderText = () => {
     if (!text) return null;
@@ -28,7 +29,12 @@ export function TextInsightWidget({ data, config }) {
   };
 
   return (
-    <div className="text-insight-widget-container">
+    <div className={`text-insight-widget-container ${actionLabel ? 'has-action' : ''} ${compact ? 'is-compact' : ''}`}>
+      {actionLabel ? (
+        <div className="text-insight-widget-toolbar">
+          <span className="text-insight-widget-action">{actionLabel}</span>
+        </div>
+      ) : null}
       <p className="leading-relaxed">
         {renderText()}
       </p>

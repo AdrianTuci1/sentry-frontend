@@ -12,10 +12,9 @@ export function LeadSourcesWidget({ data }) {
   });
 
   return (
-    <div className="h-full p-4 flex items-center justify-between gap-6 select-none">
-      {/* Left: Donut SVG with text in center */}
-      <div className="relative w-28 h-28 shrink-0 flex items-center justify-center">
-        <svg viewBox="-50 -50 100 100" className="w-full h-full -rotate-90">
+    <div className="sales-lead-sources-widget">
+      <div className="sales-lead-sources-donut-wrap">
+        <svg viewBox="-50 -50 100 100" className="sales-lead-sources-donut">
           {slices.map((slice, i) => (
             <circle
               key={i}
@@ -24,37 +23,34 @@ export function LeadSourcesWidget({ data }) {
               cy="0"
               fill="none"
               stroke={slice.color}
-              strokeWidth="12"
-              strokeDasharray={`${slice.percent * 2.51} ${251 - slice.percent * 2.51}`}
-              strokeDashoffset={-slice.startPercent * 2.51}
+              strokeWidth="14"
+              strokeLinecap="round"
+              strokeDasharray={`${Math.max(slice.percent * 2.33 - 4, 0)} ${251 - slice.percent * 2.33 + 4}`}
+              strokeDashoffset={-slice.startPercent * 2.33}
             />
           ))}
-          {/* Inner masking circle to make it a donut */}
-          <circle r="33" cx="0" cy="0" fill="#111214" />
+          <circle r="31" cx="0" cy="0" fill="#090A0B" />
         </svg>
-        {/* Centered label */}
-        <div className="absolute flex flex-col items-center justify-center text-center">
-          <span className="text-lg font-bold text-text-primary leading-none tabular-nums">
+        <div className="sales-lead-sources-center">
+          <span className="sales-lead-sources-total">
             {totalLeads.toLocaleString()}
           </span>
-          <span className="text-[9px] text-text-muted uppercase tracking-wider mt-1">
-            Total Leads
+          <span className="sales-lead-sources-total-label">
+            total leads
           </span>
         </div>
       </div>
 
-      {/* Right: Legend with Custom Color Bars */}
-      <div className="flex-1 flex flex-col justify-center gap-3">
+      <div className="sales-lead-sources-list">
         {sources.map((src, i) => (
-          <div key={i} className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2.5 min-w-0">
-              {/* Color bar indicator */}
-              <div className="w-1.5 h-3.5 rounded-sm" style={{ backgroundColor: src.color }} />
-              <span className="text-text-secondary font-medium truncate">
+          <div key={i} className="sales-lead-sources-row">
+            <div className="sales-lead-sources-row-left">
+              <div className="sales-lead-sources-bar" style={{ backgroundColor: src.color }} />
+              <span className="sales-lead-sources-name">
                 {src.label}
               </span>
             </div>
-            <span className="text-text-primary font-semibold tabular-nums ml-2">
+            <span className="sales-lead-sources-value">
               {src.value.toLocaleString()}
             </span>
           </div>

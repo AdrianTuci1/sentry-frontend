@@ -1,3 +1,5 @@
+import { WEB_WIDGET_BLUE, WEB_WIDGET_BLUE_MUTED } from './webWidgetTheme';
+
 /**
  * Widget Spec System - Generative UI for Sentry Dashboard
  * 
@@ -73,6 +75,7 @@ export const WIDGET_TYPES = {
   CORE_WEB_VITALS: 'core-web-vitals',
   STACKED_BAR_CHART: 'stacked-bar-chart',
   BUDGET_GAUGE: 'budget-gauge',
+  ACTIVE_DEPLOYMENTS: 'active-deployments',
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -88,116 +91,142 @@ export const serverMonitorSpec = {
   },
   widgets: [
     {
-      id: 'cpu-usage',
+      id: 'requests',
       type: WIDGET_TYPES.METRIC,
       size: '1x1',
-      title: 'CPU Usage',
-      queryRef: 'cpu-current',
+      title: 'Requests',
+      queryRef: 'requests',
+      config: { sparkline: true, compact: true },
+    },
+    {
+      id: 'errors',
+      type: WIDGET_TYPES.METRIC,
+      size: '1x1',
+      title: 'Errors',
+      queryRef: 'errors',
+      config: { sparkline: true, compact: true },
+    },
+    {
+      id: 'cpu-time',
+      type: WIDGET_TYPES.METRIC,
+      size: '1x1',
+      title: 'CPU Time',
+      queryRef: 'cpu-time',
+      config: { sparkline: true },
+    },
+    {
+      id: 'wall-time',
+      type: WIDGET_TYPES.METRIC,
+      size: '1x1',
+      title: 'Wall Time',
+      queryRef: 'wall-time',
+      config: { sparkline: true },
+    },
+    {
+      id: 'execution-duration',
+      type: WIDGET_TYPES.METRIC,
+      size: '2x2',
+      title: 'Execution Duration',
+      queryRef: 'execution-duration',
       config: {
-        unit: '%',
-        thresholds: { warning: 70, critical: 90 },
         sparkline: true,
       },
     },
     {
-      id: 'memory-usage',
+      id: 'request-duration',
       type: WIDGET_TYPES.METRIC,
-      size: '1x1',
-      title: 'Memory',
-      queryRef: 'memory-current',
-      config: { unit: 'GB', sparkline: true },
-    },
-    {
-      id: 'disk-io',
-      type: WIDGET_TYPES.METRIC,
-      size: '1x1',
-      title: 'Disk I/O',
-      queryRef: 'disk-io-current',
-      config: { unit: 'MB/s', sparkline: true },
-    },
-    {
-      id: 'network-io',
-      type: WIDGET_TYPES.METRIC,
-      size: '1x1',
-      title: 'Network',
-      queryRef: 'network-current',
-      config: { unit: 'Mbps', sparkline: true },
-    },
-    {
-      id: 'cpu-sparkline',
-      type: WIDGET_TYPES.SPARKLINE,
       size: '2x2',
-      title: 'CPU History',
-      queryRef: 'cpu-history',
-      config: { showAxes: true, fill: false },
+      title: 'Request Duration',
+      queryRef: 'request-duration',
+      config: { sparkline: true },
     },
     {
-      id: 'memory-sparkline',
-      type: WIDGET_TYPES.SPARKLINE,
+      id: 'server-ai-insight',
+      type: WIDGET_TYPES.TEXT_INSIGHT,
       size: '2x2',
-      title: 'Memory History',
-      queryRef: 'memory-history',
-      config: { showAxes: true, fill: true },
-    },
-    {
-      id: 'process-list',
-      type: WIDGET_TYPES.PROGRESS_LIST,
-      size: '2x2',
-      title: 'Top Processes',
-      queryRef: 'top-processes',
-      config: { maxItems: 8, showValue: true },
-    },
-    {
-      id: 'server-status',
-      type: WIDGET_TYPES.STATUS_LIST,
-      size: '2x2',
-      title: 'Services',
-      queryRef: 'service-status',
-      config: { maxItems: 10 },
+      title: 'AI Insight',
+      queryRef: 'server-ai-insight',
+      config: {},
     },
     {
       id: 'latency-dist',
       type: WIDGET_TYPES.SEGMENTED_BAR,
-      size: '4x1',
+      size: '2x2',
       title: 'Latency Distribution',
       queryRef: 'latency-percentiles',
       config: {
         segments: [
           { key: 'p50', label: 'P50', color: '#E4E4E7' },
           { key: 'p95', label: 'P95', color: '#6B7280' },
-          { key: 'p99', label: 'P99', color: '#3F3F46' },
+          { key: 'p99', label: 'P99', color: '#2A2A2D' },
         ],
       },
+    },
+    {
+      id: 'active-deployments',
+      type: WIDGET_TYPES.ACTIVE_DEPLOYMENTS,
+      size: '4x2',
+      title: '',
+      queryRef: 'active-deployments',
+      config: {},
     },
   ],
   queries: [
     {
-      id: 'cpu-current',
-      source: 'prometheus',
-      template: 'avg(cpu_usage_percent{host=~"$host"})',
-      params: ['host', 'timeRange'],
-      refresh: '10s',
+      id: 'active-deployments',
+      source: 'api',
+      template: '/api/v1/deployments/active?window=$timeRange',
+      params: ['timeRange'],
+      refresh: '60s',
     },
     {
-      id: 'cpu-history',
+      id: 'requests',
       source: 'prometheus',
-      template: 'avg_over_time(cpu_usage_percent{host=~"$host"}[$__interval])',
-      params: ['host', 'timeRange', 'resolution'],
+      template: 'sum(rate(http_requests_total{host=~"$host"}[$timeRange]))',
+      params: ['host', 'timeRange'],
+      refresh: '30s',
+    },
+    {
+      id: 'errors',
+      source: 'prometheus',
+      template: 'sum(rate(http_request_errors_total{host=~"$host"}[$timeRange]))',
+      params: ['host', 'timeRange'],
       refresh: '30s',
     },
     {
-      id: 'memory-current',
+      id: 'cpu-time',
       source: 'prometheus',
-      template: 'memory_used_bytes{host=~"$host"} / memory_total_bytes{host=~"$host"} * 100',
-      params: ['host', 'timeRange'],
-      refresh: '10s',
-    },
-    {
-      id: 'top-processes',
-      source: 'prometheus',
-      template: 'topk(8, process_cpu_usage{host=~"$host"})',
+      template: 'sum(rate(process_cpu_seconds_total{host=~"$host"}[$timeRange]))',
       params: ['host', 'timeRange'],
       refresh: '30s',
+    },
+    {
+      id: 'wall-time',
+      source: 'prometheus',
+      template: 'sum(rate(process_wall_seconds_total{host=~"$host"}[$timeRange]))',
+      params: ['host', 'timeRange'],
+      refresh: '30s',
+    },
+    {
+      id: 'execution-duration',
+      source: 'prometheus',
+      template: 'sum(execution_duration_gb_seconds{host=~"$host"})',
+      params: ['host', 'timeRange'],
+      refresh: '30s',
+    },
+    {
+      id: 'request-duration',
+      source: 'prometheus',
+      template: 'histogram_quantile(0.95, rate(request_duration_ms_bucket{host=~"$host"}[$timeRange]))',
+      params: ['host', 'timeRange'],
+      refresh: '30s',
+    },
+    {
+      id: 'server-ai-insight',
+      source: 'api',
+      template: '/api/v1/insights/server?window=$timeRange',
+      params: ['timeRange'],
+      refresh: '60s',
     },
     {
       id: 'latency-percentiles',
@@ -205,13 +234,6 @@ export const serverMonitorSpec = {
       template: 'histogram_quantile(0.5, rate(request_duration_seconds_bucket{host=~"$host"}[$timeRange]))',
       params: ['host', 'timeRange'],
       refresh: '30s',
-    },
-    {
-      id: 'service-status',
-      source: 'api',
-      template: '/api/v1/services?host=$host',
-      params: ['host'],
-      refresh: '60s',
     },
   ],
 };
@@ -658,9 +680,9 @@ export function generateMockData(widgetType, config = {}, queryRef = null) {
       return {
         totalOnline: 1482,
         devices: [
-          { label: 'Desktop', value: 771, percent: 52, color: '#3b82f6' },
-          { label: 'Mobile', value: 563, percent: 38, color: '#ec4899' },
-          { label: 'Tablet', value: 148, percent: 10, color: '#10b981' },
+          { label: 'Desktop', value: 771, percent: 52, color: WEB_WIDGET_BLUE },
+          { label: 'Mobile', value: 563, percent: 38, color: WEB_WIDGET_BLUE_MUTED },
+          { label: 'Tablet', value: 148, percent: 10, color: 'rgba(168, 199, 250, 0.2)' },
         ],
       };
     }
@@ -701,8 +723,8 @@ export function generateMockData(widgetType, config = {}, queryRef = null) {
     if (queryRef === 'audience-mix') {
       return {
         segments: [
-          { label: 'New Users', value: 60, color: '#A8C7FA' },
-          { label: 'Returning Users', value: 40, color: '#6B7280' },
+          { label: 'New Users', value: 60, color: WEB_WIDGET_BLUE },
+          { label: 'Returning Users', value: 40, color: WEB_WIDGET_BLUE_MUTED },
         ],
       };
     }
@@ -735,6 +757,82 @@ export function generateMockData(widgetType, config = {}, queryRef = null) {
           { id: 'inp', label: 'Interaction to Next Paint', acronym: 'INP', value: '85ms', status: 'good', description: 'Excellent responsiveness.' },
           { id: 'cls', label: 'Cumulative Layout Shift', acronym: 'CLS', value: '0.04', status: 'good', description: 'High visual stability.' }
         ],
+      };
+    }
+    if (queryRef === 'latency-percentiles') {
+      return {
+        summaryValue: '23.7 ms',
+        summaryLabel: 'p95',
+        actionLabel: 'Open metrics',
+        segments: [
+          { key: 'p50', label: 'P50', value: 45, displayValue: '45%', color: '#E4E4E7' },
+          { key: 'p95', label: 'P95', value: 35, displayValue: '35%', color: '#6B7280' },
+          { key: 'p99', label: 'P99', value: 20, displayValue: '20%', color: '#2A2A2D' },
+        ],
+        total: 100,
+      };
+    }
+    if (queryRef === 'server-ai-insight') {
+      return {
+        text: 'Cold starts fell by 18% in the last 4 hours vs. the previous window after the v2.8.1 deploy.',
+        highlights: [
+          { text: '18%', type: 'metric' },
+          { text: 'last 4 hours', type: 'timeframe' },
+          { text: 'v2.8.1 deploy', type: 'release' },
+        ],
+        actionLabel: 'View traces',
+      };
+    }
+    if (queryRef === 'requests') {
+      return {
+        value: 128400,
+        previous: 118900,
+        trend: '7.99',
+        sparklineData: [24, 31, 28, 35, 32, 38, 41, 39, 44, 48, 46, 51, 54, 50, 58, 62, 57, 61, 66, 70],
+      };
+    }
+    if (queryRef === 'errors') {
+      return {
+        value: 184,
+        previous: 163,
+        trend: '12.88',
+        sparklineData: [4, 5, 4, 7, 6, 8, 7, 9, 8, 10, 12, 11, 13, 12, 14, 13, 15, 14, 16, 18],
+      };
+    }
+    if (queryRef === 'cpu-time') {
+      return {
+        value: 6.8,
+        displayValue: '6.8h',
+        previous: 6.2,
+        trend: '9.68',
+        sparklineData: [1.2, 1.4, 1.3, 1.8, 1.6, 2.0, 2.2, 2.1, 2.4, 2.8, 2.6, 3.0, 3.3, 3.1, 3.5, 3.9, 3.6, 4.2, 4.6, 4.9],
+      };
+    }
+    if (queryRef === 'wall-time') {
+      return {
+        value: 14.2,
+        displayValue: '14.2h',
+        previous: 13.4,
+        trend: '5.97',
+        sparklineData: [2.1, 2.4, 2.3, 2.7, 2.6, 3.1, 3.0, 3.4, 3.3, 3.8, 4.0, 3.9, 4.4, 4.7, 4.5, 5.0, 5.3, 5.1, 5.7, 6.0],
+      };
+    }
+    if (queryRef === 'execution-duration') {
+      return {
+        value: 2.4,
+        displayValue: '2.4 GB-sec',
+        previous: 2.37,
+        trend: '1.19',
+        sparklineData: [0.4, 0.4, 1.7, 0.4, 1.0, 0.4, 1.0, 0.4, 1.7, 0.4, 1.0, 0.4, 1.7, 0.4, 2.3, 0.4, 1.0, 0.4, 3.0, 0.4, 1.7],
+      };
+    }
+    if (queryRef === 'request-duration') {
+      return {
+        value: 23.7,
+        displayValue: '23.7 ms',
+        previous: 18.2,
+        trend: '30.30',
+        sparklineData: [0.3, 0.7, 0.3, 0.7, 0.3, 1.1, 0.3, 0.7, 0.3, 1.6, 0.3, 1.1, 0.3, 1.9, 0.3, 1.6, 0.3, 2.3, 0.3, 1.1, 0.3, 2.7],
       };
     }
     if (queryRef === 'active-campaigns-total') {
@@ -800,6 +898,75 @@ export function generateMockData(widgetType, config = {}, queryRef = null) {
         percentUsed: 46.6,
         leftLabel: 'Used today',
         rightLabel: "Today's allowance",
+      };
+    }
+    if (queryRef === 'active-deployments') {
+      return {
+        deployments: [
+          {
+            version: 'v2.8.1',
+            environment: 'Production',
+            status: 'Healthy',
+            branch: 'main',
+            commit: 'Improve edge cache invalidation strategy',
+            date: 'May 19',
+            cache: 'Cached',
+          },
+          {
+            version: 'v2.8.0',
+            environment: 'Production',
+            status: 'Stable',
+            branch: 'release/2.8',
+            commit: 'Patch payment webhook retry logic',
+            date: 'May 18',
+            cache: 'Cached',
+          },
+          {
+            version: 'v2.9.0-rc.1',
+            environment: 'Staging',
+            status: 'Warning',
+            branch: 'release/2.9',
+            commit: 'Add budget dashboard summary cards',
+            date: 'May 18',
+            cache: 'Cold',
+          },
+          {
+            version: 'v2.7.6',
+            environment: 'Production',
+            status: 'Healthy',
+            branch: 'hotfix/auth-session',
+            commit: 'Fix stale session token refresh race',
+            date: 'May 17',
+            cache: 'Cached',
+          },
+          {
+            version: 'v2.9.0-beta.3',
+            environment: 'Staging',
+            status: 'Stable',
+            branch: 'feature/usage-breakdown',
+            commit: 'Refine monthly budget usage graph labels',
+            date: 'May 17',
+            cache: 'Cold',
+          },
+          {
+            version: 'v2.7.5',
+            environment: 'Production',
+            status: 'Healthy',
+            branch: 'hotfix/cdn-rules',
+            commit: 'Tune cache headers for checkout assets',
+            date: 'May 16',
+            cache: 'Cached',
+          },
+          {
+            version: 'v2.9.0-beta.2',
+            environment: 'Staging',
+            status: 'Warning',
+            branch: 'feature/server-rollouts',
+            commit: 'Prepare progressive deployment toggles',
+            date: 'May 15',
+            cache: 'Cold',
+          },
+        ],
       };
     }
   }
@@ -872,6 +1039,21 @@ export function generateMockData(widgetType, config = {}, queryRef = null) {
         spent: 223.65,
         allowance: 480.0,
         percentUsed: 46.6,
+      };
+
+    case WIDGET_TYPES.ACTIVE_DEPLOYMENTS:
+      return {
+        deployments: [
+          {
+            version: 'v2.8.1',
+            environment: 'Production',
+            status: 'Healthy',
+            branch: 'main',
+            commit: 'Improve edge cache invalidation strategy',
+            date: 'May 19',
+            cache: 'Cached',
+          },
+        ],
       };
     
     case WIDGET_TYPES.PROGRESS_LIST:

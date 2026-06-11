@@ -1,13 +1,20 @@
+import { WEB_WIDGET_BLUE, WEB_WIDGET_BLUE_MUTED } from '../webWidgetTheme';
+
 export function PieChartWidget({ data, config }) {
   const { segments } = data;
   const total = segments?.reduce((sum, s) => sum + s.value, 0) || 1;
 
   let cumulativePercent = 0;
-  const slices = segments?.map((segment) => {
+  const slices = segments?.map((segment, i) => {
     const percent = (segment.value / total) * 100;
     const startPercent = cumulativePercent;
     cumulativePercent += percent;
-    return { ...segment, percent, startPercent };
+    return {
+      ...segment,
+      color: segment.color || (i === 0 ? WEB_WIDGET_BLUE : WEB_WIDGET_BLUE_MUTED),
+      percent,
+      startPercent,
+    };
   }) || [];
 
   const getCoordinatesForPercent = (percent) => {
@@ -23,9 +30,6 @@ export function PieChartWidget({ data, config }) {
           {config?.donut ? (
             <>
               {slices.map((slice, i) => {
-                const [startX, startY] = getCoordinatesForPercent(slice.startPercent / 100);
-                const [endX, endY] = getCoordinatesForPercent((slice.startPercent + slice.percent) / 100);
-                const largeArc = slice.percent > 50 ? 1 : 0;
                 return (
                   <circle
                     key={i}

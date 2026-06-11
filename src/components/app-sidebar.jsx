@@ -67,6 +67,7 @@ export function AppSidebar() {
     setActiveSection,
     selectOrganization,
     selectWorkspace,
+    createOrganization,
     createWorkspace,
     goToOrganizationHome,
     chatSessions,
@@ -112,23 +113,23 @@ export function AppSidebar() {
 
         <div className="sidebar-divider-custom" />
 
-        <div className="sidebar-switcher-wrapper">
+        {activeScope === "project" && (
+          <div className="sidebar-switcher-wrapper">
           <SidebarMenu>
             <SidebarMenuItem>
-              {activeScope === "organization" ? (
-                <DropdownMenu>
+              <DropdownMenu>
                   <DropdownMenuTrigger
                     render={<SidebarMenuButton size="lg" className="sidebar-switcher-trigger" />}
                   >
                     <div
                       className={cn(
                         "workspace-circle-logo",
-                        getWorkspaceGradient(currentOrganization.name)
+                        getWorkspaceGradient(currentWorkspace.name)
                       )}
                     />
                     <div className="workspace-title-wrapper group-data-[collapsible=icon]:hidden">
-                      <span className="workspace-title-text">{currentOrganization.name}</span>
-                      <span className="workspace-subtitle-text">Organizations</span>
+                      <span className="workspace-title-text">{currentWorkspace.name}</span>
+                      <span className="workspace-subtitle-text">{currentOrganization.name}</span>
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -137,49 +138,52 @@ export function AppSidebar() {
                     sideOffset={12}
                     className="sidebar-switcher-dropdown-content"
                   >
-                    <div className="dropdown-section-label">Organizations</div>
-                    {organizations.map((organization) => (
+                    <div className="dropdown-section-label">Projects</div>
+                    {organizationProjects.map((workspace) => (
                       <DropdownMenuItem
-                        key={organization.id}
-                        onClick={() => selectOrganization(organization.id)}
+                        key={workspace.id}
+                        onClick={() => selectWorkspace(workspace.id)}
                         className={cn(
                           "dropdown-item-custom",
-                          currentOrganization.id === organization.id && "selected"
+                          currentWorkspace.id === workspace.id && "selected"
                         )}
                       >
                         <div className="dropdown-item-left">
                           <div
                             className={cn(
                               "dropdown-workspace-circle",
-                              getWorkspaceGradient(organization.name)
+                              getWorkspaceGradient(workspace.name)
                             )}
                           />
                           <div className="dropdown-item-meta">
-                            <span className="dropdown-workspace-name">{organization.name}</span>
-                            <span className="dropdown-workspace-plan">{organization.owner}</span>
+                            <span className="dropdown-workspace-name">{workspace.name}</span>
+                            <span className="dropdown-workspace-plan">{workspace.domain}</span>
                           </div>
                         </div>
                       </DropdownMenuItem>
                     ))}
+                    <div className="dropdown-section-separator" />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        const name = prompt("Project name:");
+                        if (name?.trim()) createWorkspace(name.trim());
+                      }}
+                      className="dropdown-item-custom dropdown-item-create"
+                    >
+                      <div className="dropdown-item-left">
+                        <div className="dropdown-workspace-circle dropdown-circle-plus">
+                          <Plus size={14} />
+                        </div>
+                        <div className="dropdown-item-meta">
+                          <span className="dropdown-workspace-name">Create project</span>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              ) : (
-                <SidebarMenuButton size="lg" className="sidebar-switcher-trigger static">
-                  <div
-                    className={cn(
-                      "workspace-circle-logo",
-                      getWorkspaceGradient(currentWorkspace.name)
-                    )}
-                  />
-                  <div className="workspace-title-wrapper group-data-[collapsible=icon]:hidden">
-                    <span className="workspace-title-text">{currentWorkspace.name}</span>
-                    <span className="workspace-subtitle-text">{currentOrganization.name}</span>
-                  </div>
-                </SidebarMenuButton>
-              )}
             </SidebarMenuItem>
           </SidebarMenu>
-        </div>
+        </div>)}
 
         <div className="sidebar-divider-custom" />
       </SidebarHeader>
@@ -196,7 +200,11 @@ export function AppSidebar() {
 
         {navigationGroups.map((group, index) => (
           <div key={group.id}>
-            {index > 0 ? null : null}
+            {group.label && (
+              <SidebarGroupLabel className="sidebar-group-label-custom group-data-[collapsible=icon]:hidden">
+                {group.label}
+              </SidebarGroupLabel>
+            )}
             <SidebarGroup className="sidebar-group-custom">
               <SidebarGroupContent>
                 <SidebarMenu className="sidebar-menu-gap">
@@ -228,12 +236,90 @@ export function AppSidebar() {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {/* Org switcher dropdown after the first group (general) */}
+            {index === 0 && activeScope === "organization" && (
+              <>
+                <div className="sidebar-group-separator" />
+                <SidebarGroup className="sidebar-group-custom">
+                  <SidebarGroupContent>
+                    <SidebarMenu className="sidebar-menu-gap">
+                      <SidebarMenuItem>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            render={<SidebarMenuButton size="lg" className="sidebar-switcher-trigger" />}
+                          >
+                            <div
+                              className={cn(
+                                "workspace-circle-logo",
+                                getWorkspaceGradient(currentOrganization.name)
+                              )}
+                            />
+                            <div className="workspace-title-wrapper group-data-[collapsible=icon]:hidden">
+                              <span className="workspace-title-text">{currentOrganization.name}</span>
+                              <span className="workspace-subtitle-text">Organizations</span>
+                            </div>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            side="right"
+                            align="start"
+                            sideOffset={12}
+                            className="sidebar-switcher-dropdown-content"
+                          >
+                            <div className="dropdown-section-label">Organizations</div>
+                            {organizations.map((organization) => (
+                              <DropdownMenuItem
+                                key={organization.id}
+                                onClick={() => selectOrganization(organization.id)}
+                                className={cn(
+                                  "dropdown-item-custom",
+                                  currentOrganization.id === organization.id && "selected"
+                                )}
+                              >
+                                <div className="dropdown-item-left">
+                                  <div
+                                    className={cn(
+                                      "dropdown-workspace-circle",
+                                      getWorkspaceGradient(organization.name)
+                                    )}
+                                  />
+                                  <div className="dropdown-item-meta">
+                                    <span className="dropdown-workspace-name">{organization.name}</span>
+                                    <span className="dropdown-workspace-plan">{organization.owner}</span>
+                                  </div>
+                                </div>
+                              </DropdownMenuItem>
+                            ))}
+                            <div className="dropdown-section-separator" />
+                            <DropdownMenuItem
+                              onClick={() => {
+                                const name = prompt("Organization name:");
+                                if (name?.trim()) createOrganization(name.trim());
+                              }}
+                              className="dropdown-item-custom dropdown-item-create"
+                            >
+                              <div className="dropdown-item-left">
+                                <div className="dropdown-workspace-circle dropdown-circle-plus">
+                                  <Plus size={14} />
+                                </div>
+                                <div className="dropdown-item-meta">
+                                  <span className="dropdown-workspace-name">Create organization</span>
+                                </div>
+                              </div>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </SidebarMenuItem>
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              </>
+            )}
           </div>
         ))}
 
         {activeScope === "organization" ? (
           <>
-            <div className="sidebar-group-separator" />
             <SidebarGroup className="sidebar-group-custom">
               <SidebarGroupLabel className="sidebar-group-label-custom group-data-[collapsible=icon]:hidden">
                 Projects
@@ -294,7 +380,6 @@ export function AppSidebar() {
 
         {activeScope === "project" ? (
           <>
-            <div className="sidebar-group-separator" />
             <SidebarGroup className="sidebar-group-custom relative group/chat-group">
               <SidebarGroupLabel className="sidebar-group-label-custom group-data-[collapsible=icon]:hidden">
                 Chat History

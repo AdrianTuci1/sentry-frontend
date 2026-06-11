@@ -221,6 +221,37 @@ export const useAppStore = create((set, get) => ({
     }));
   },
 
+  createOrganization: (name) => {
+    const id = `org_${Date.now()}`;
+    const newOrg = {
+      id,
+      name,
+      owner: 'you@example.com',
+      plan: 'Starter',
+    };
+
+    const newWorkspace = {
+      id: `project_${Date.now()}`,
+      organizationId: id,
+      name: `${name} default`,
+      domain: `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.workspace`,
+      status: 'Healthy',
+      monthlyEvents: '0',
+      dataConsumption: '0 GB',
+      lastUpdated: 'just now',
+      connectors: [],
+    };
+
+    set((state) => ({
+      organizations: [...state.organizations, newOrg],
+      workspaces: [...state.workspaces, newWorkspace],
+      currentOrganization: newOrg,
+      currentWorkspace: newWorkspace,
+      activeScope: 'organization',
+      activeSection: state.activeOrganizationSection || 'organization-home',
+    }));
+  },
+
   goToOrganizationHome: () =>
     set((state) => ({
       activeScope: 'organization',
