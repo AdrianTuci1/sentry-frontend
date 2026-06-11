@@ -14,6 +14,11 @@ import { PieChartWidget } from './widgets/PieChartWidget';
 import { TextInsightWidget } from './widgets/TextInsightWidget';
 import { SegmentedBarWidget } from './widgets/SegmentedBarWidget';
 import { HeatmapWidget } from './widgets/HeatmapWidget';
+import { VisitorsOnlineWidget } from './widgets/VisitorsOnlineWidget';
+import { CoreWebVitalsWidget } from './widgets/CoreWebVitalsWidget';
+import { StackedBarChartWidget } from './widgets/StackedBarChartWidget';
+import { BudgetGaugeWidget } from './widgets/BudgetGaugeWidget';
+import '@/styles/dashboard.css';
 
 const widgetComponents = {
   [WIDGET_TYPES.METRIC]: MetricWidget,
@@ -26,40 +31,44 @@ const widgetComponents = {
   [WIDGET_TYPES.TEXT_INSIGHT]: TextInsightWidget,
   [WIDGET_TYPES.SEGMENTED_BAR]: SegmentedBarWidget,
   [WIDGET_TYPES.HEATMAP]: HeatmapWidget,
+  [WIDGET_TYPES.VISITORS_ONLINE]: VisitorsOnlineWidget,
+  [WIDGET_TYPES.CORE_WEB_VITALS]: CoreWebVitalsWidget,
+  [WIDGET_TYPES.STACKED_BAR_CHART]: StackedBarChartWidget,
+  [WIDGET_TYPES.BUDGET_GAUGE]: BudgetGaugeWidget,
 };
 
 export function WidgetRenderer({ spec }) {
   const { id, type, size, title, config } = spec;
   const sizeClass = WIDGET_SIZES[size]?.className || 'col-span-1 row-span-1';
 
-  // In producție, aici am face fetch la queryRef
-  // Pentru demo, generăm mock data bazat pe tip
-  const data = useMemo(() => generateMockData(type, config), [type, config]);
+  const data = useMemo(() => generateMockData(type, config, spec.queryRef || id), [type, config, spec.queryRef, id]);
 
   const WidgetComponent = widgetComponents[type];
   if (!WidgetComponent) {
     return (
-      <div className={`${sizeClass} bg-bg-secondary border border-border p-4 flex items-center justify-center`}>
-        <span className="text-text-muted text-sm">Unknown widget type: {type}</span>
+      <div className={`${sizeClass} widget-card`}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '16px' }}>
+          <span style={{ color: '#8E918F', fontSize: '14px' }}>Unknown widget type: {type}</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`${sizeClass} bg-bg-secondary border border-border flex flex-col overflow-hidden`}>
+    <div className={`${sizeClass} widget-card`}>
       {/* Widget Header */}
       {title && (
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-          <span className="text-xs font-medium text-text-muted uppercase tracking-wider">
+        <div className="widget-header">
+          <span className="widget-title">
             {title}
           </span>
           {config.unit && (
-            <span className="text-xs text-text-muted">{config.unit}</span>
+            <span className="widget-unit">{config.unit}</span>
           )}
         </div>
       )}
       {/* Widget Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="widget-content-body">
         <WidgetComponent data={data} config={config} />
       </div>
     </div>

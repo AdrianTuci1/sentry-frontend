@@ -17,7 +17,7 @@ export function PieChartWidget({ data, config }) {
   };
 
   return (
-    <div className="h-full p-4 flex items-center gap-4">
+    <div className="pie-chart-widget-container">
       <div className="relative w-24 h-24 shrink-0">
         <svg viewBox="-50 -50 100 100" className="w-full h-full -rotate-90">
           {config?.donut ? (

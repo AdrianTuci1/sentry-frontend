@@ -1,166 +1,135 @@
-import { useState, useRef, useEffect } from 'react';
-import { useAppStore } from '@/stores/useAppStore';
-import { Send, Plus, Trash2, MessageSquare, X } from 'lucide-react';
+import { useState, useEffect, useRef } from "react";
+import { useAppStore } from "@/stores/useAppStore";
+import { Send, User, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
+import "@/styles/chat.css";
 
 export function ChatView() {
   const {
     chatSessions,
     activeChatId,
-    isChatPanelOpen,
     createChatSession,
-    selectChat,
-    deleteChatSession,
     addMessage,
   } = useAppStore();
 
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
 
-  const activeChat = chatSessions.find((c) => c.id === activeChatId);
+  const activeChat = chatSessions.find((chat) => chat.id === activeChatId);
+  const messages = activeChat?.messages || [];
 
+  // Scroll to bottom on new messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeChat?.messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
 
   const handleSend = () => {
-    if (!input.trim()) return;
-    if (!activeChatId) {
-      createChatSession(input.trim().slice(0, 30));
-    }
-    addMessage(activeChatId || chatSessions[chatSessions.length - 1]?.id, {
-      role: 'user',
-      content: input.trim(),
-    });
-    setInput('');
+    const text = input.trim();
+    if (!text) return;
 
-    // Simulate response
+    let currentChatId = activeChatId;
+
+    // 1. Create a session on-the-fly if none exists
+    if (!currentChatId) {
+      const newSession = createChatSession(text.slice(0, 30));
+      currentChatId = newSession.id;
+    } else if (messages.length === 0) {
+      // Rename session title from default to first query
+      useAppStore.setState((state) => ({
+        chatSessions: state.chatSessions.map((chat) =>
+          chat.id === currentChatId ? { ...chat, title: text.slice(0, 30) } : chat
+        ),
+      }));
+    }
+
+    // 2. Add user message
+    addMessage(currentChatId, {
+      role: "user",
+      content: text,
+    });
+    setInput("");
+
+    // 3. Simulate assistant response
     setTimeout(() => {
-      addMessage(activeChatId || chatSessions[chatSessions.length - 1]?.id, {
-        role: 'assistant',
-        content: 'I received your message. This is a placeholder response.',
+      let reply = "Polly wants a cracker! I'm scanning Sentry telemetry, but your query seems unique. Could you clarify?";
+      const lowerText = text.toLowerCase();
+
+      if (lowerText.includes("onboarding") || lowerText.includes("started")) {
+        reply = "Looking at your getting started checklist, you have configured your organization profile, but you still need to link database telemetry streams and activate ML threat filters. Click 'Onboarding' in the sidebar to review.";
+      } else if (lowerText.includes("latency") || lowerText.includes("slow")) {
+        reply = "Telemetry shows a high latency spike (420ms) on Payments API node `10.0.0.8`. Gateway timeouts are being reported. Check database cache layers.";
+      } else if (lowerText.includes("error") || lowerText.includes("outage") || lowerText.includes("fail")) {
+        reply = "Critical warning flag on Payments API (IP: `10.0.0.8`). Connection attempts from client terminals are timing out. I recommend triggering a database re-analysis in Settings.";
+      } else if (lowerText.includes("user") || lowerText.includes("access")) {
+        reply = "Currently, there are three users with access to your workspace. Admin `admin@efferd.io` has full permissions. You can configure individual read/write thresholds in Settings.";
+      } else if (lowerText.includes("integration") || lowerText.includes("connect")) {
+        reply = "Observability hub has 3 connected integrations (PostgreSQL, Kafka, S3 bucket). S3 bucket is reporting a connection sync failure. You can configure data pipelines in Integrations tab.";
+      }
+
+      addMessage(currentChatId, {
+        role: "assistant",
+        content: reply,
       });
-    }, 1000);
+    }, 800);
   };
 
+  const hasMessages = messages.length > 0;
+
   return (
-    <div className="h-full flex">
-      {/* Sessions Sidebar */}
-      {isChatPanelOpen && (
-        <div className="w-60 border-r border-border bg-bg-secondary flex flex-col shrink-0">
-          <div className="h-12 border-b border-border flex items-center justify-between px-3">
-            <span className="text-sm font-medium text-text-primary">Chat Sessions</span>
-            <button
-              onClick={() => createChatSession()}
-              className="p-1.5 rounded-md hover:bg-bg-hover text-text-muted transition-colors"
-            >
-              <Plus size={16} />
-            </button>
+    <div className={cn("chat-main-wrapper", hasMessages ? "chat-active-mode" : "chat-empty-mode")}>
+      {hasMessages ? (
+        /* Conversation Mode */
+        <div className="chat-active-container">
+          <div className="chat-messages-container">
+            {messages.map((message) => {
+              const isUser = message.role === "user";
+              return (
+                <div key={message.id} className={cn("chat-message-row", isUser ? "user" : "assistant")}>
+                  <div className={cn("chat-message-avatar", isUser ? "user" : "assistant")}>
+                    {isUser ? <User size={16} /> : <Sparkles size={16} className="text-accent" />}
+                  </div>
+                  <div className="chat-message-content-wrapper">
+                    <span className="chat-message-sender-name">
+                      {isUser ? "You" : "Parrot AI"}
+                    </span>
+                    <div className={cn("chat-message-bubble", isUser ? "user" : "assistant")}>
+                      {message.content}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <div ref={messagesEndRef} />
           </div>
 
-          <div className="flex-1 overflow-y-auto py-2">
-            {chatSessions.length === 0 ? (
-              <div className="px-3 py-8 text-center">
-                <MessageSquare size={24} className="text-text-muted mx-auto mb-2" />
-                <div className="text-xs text-text-muted">No sessions yet</div>
-                <button
-                  onClick={() => createChatSession()}
-                  className="mt-3 text-xs text-accent hover:text-accent-hover"
-                >
-                  Start new chat
-                </button>
-              </div>
-            ) : (
-              chatSessions.map((session) => (
-                <div
-                  key={session.id}
-                  onClick={() => selectChat(session.id)}
-                  className={`mx-2 px-3 py-2 rounded-md cursor-pointer group flex items-center justify-between ${
-                    session.id === activeChatId
-                      ? 'bg-bg-hover text-accent'
-                      : 'text-text-secondary hover:bg-bg-hover'
-                  }`}
-                >
-                  <div className="truncate text-sm">{session.title}</div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteChatSession(session.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-bg-tertiary text-text-muted transition-opacity"
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                </div>
-              ))
-            )}
+          <div className="chat-active-input-footer">
+            <div className="chat-centered-composer-wrapper pill-composer">
+              <input
+                type="text"
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                onKeyDown={(event) => event.key === "Enter" && handleSend()}
+                placeholder="Ask Parrot..."
+                className="chat-centered-text-input"
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Empty Prompt Composer Mode */
+        <div className="chat-centered-container">
+          <div className="chat-centered-composer-wrapper pill-composer">
+            <input
+              type="text"
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={(event) => event.key === "Enter" && handleSend()}
+              placeholder="Ask Parrot..."
+              className="chat-centered-text-input"
+            />
           </div>
         </div>
       )}
-
-      {/* Chat Area */}
-      <div className="flex-1 flex flex-col bg-bg-primary">
-        {!activeChat ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <MessageSquare size={32} className="text-text-muted mx-auto mb-3" />
-              <div className="text-text-secondary mb-2">Select or create a chat session</div>
-              <button
-                onClick={() => createChatSession()}
-                className="px-4 py-2 bg-accent text-bg-primary rounded-md text-sm font-medium hover:bg-accent-hover transition-colors"
-              >
-                New Chat
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {activeChat.messages.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="text-text-muted text-sm">Start a conversation...</div>
-                </div>
-              )}
-              {activeChat.messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[80%] px-4 py-2.5 rounded-lg text-sm ${
-                      msg.role === 'user'
-                        ? 'bg-accent text-bg-primary'
-                        : 'bg-bg-secondary text-text-primary border border-border'
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-
-            <div className="border-t border-border p-3">
-              <div className="flex items-center gap-2 max-w-3xl mx-auto">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Type a message..."
-                  className="flex-1 bg-bg-secondary border border-border rounded-md px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent transition-colors"
-                />
-                <button
-                  onClick={handleSend}
-                  disabled={!input.trim()}
-                  className="p-2 bg-accent text-bg-primary rounded-md hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Send size={16} />
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
     </div>
   );
 }

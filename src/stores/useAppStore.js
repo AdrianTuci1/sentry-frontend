@@ -3,18 +3,20 @@ import { create } from 'zustand';
 export const useAppStore = create((set, get) => ({
   // Workspace state
   currentWorkspace: {
-    id: 'default',
-    name: 'Sentry Data',
+    id: 'efferd',
+    name: 'Efferd',
   },
   workspaces: [
-    { id: 'default', name: 'Sentry Data' },
+    { id: 'efferd', name: 'Efferd' },
+    { id: 'shadcn', name: 'Shadcn' },
   ],
 
   // Navigation state
-  activeSection: 'analytics',
+  activeSection: 'onboarding',
 
   // Analytics sub-views
   activeAnalyticsView: 'servers',
+  timeRange: '1h',
 
   // Sidebar state
   sidebarCollapsed: false,
@@ -27,6 +29,8 @@ export const useAppStore = create((set, get) => ({
   setActiveSection: (section) => set({ activeSection: section }),
 
   setActiveAnalyticsView: (view) => set({ activeAnalyticsView: view }),
+
+  setTimeRange: (timeRange) => set({ timeRange }),
 
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
 

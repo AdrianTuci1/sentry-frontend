@@ -1,52 +1,111 @@
-import { useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
 import { WidgetRenderer } from './WidgetRenderer';
+import { cn } from '@/lib/utils';
 import {
   serverMonitorSpec,
   analyticsSpec,
   campaignSalesSpec,
+  marketingSpec,
 } from './widget-spec';
 import { ChevronDown, RefreshCw } from 'lucide-react';
+import { analyticsViews } from '@/components/app-shared';
+import '@/styles/dashboard.css';
 
 const layoutSpecs = {
   'server-monitor': serverMonitorSpec,
   'analytics': analyticsSpec,
   'campaign-sales': campaignSalesSpec,
+  'marketing-performance': marketingSpec,
 };
 
-export function DashboardLayout({ layoutId }) {
-  const [timeRange, setTimeRange] = useState('1h');
+export function DashboardLayout({ layoutId, className, isNested = true }) {
+  const {
+    activeAnalyticsView,
+    setActiveAnalyticsView,
+    timeRange,
+    setTimeRange
+  } = useAppStore();
   const spec = layoutSpecs[layoutId] || serverMonitorSpec;
 
   return (
-    <div className="h-full flex flex-col">
+    <div
+      className={cn(
+        "dashboard-layout-container",
+        isNested ? "nested" : "flat",
+        className
+      )}
+    >
       {/* Dashboard Header */}
-      <div className="h-12 border-b border-border flex items-center justify-between px-4 shrink-0">
-        <h2 className="text-sm font-medium text-text-primary">{spec.title}</h2>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="appearance-none bg-bg-secondary border border-border rounded-md px-3 py-1.5 pr-8 text-xs text-text-primary focus:outline-none focus:border-accent"
-            >
-              {spec.timeRange.options.map((opt) => (
-                <option key={opt} value={opt}>
-                  Last {opt}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+      {isNested ? (
+        <div className="dashboard-layout-header nested-header">
+          <h2 className="dashboard-header-title nested-title">
+            {spec.title}
+          </h2>
+          <div className="dashboard-header-controls">
+            <div className="dashboard-time-select-wrapper">
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="dashboard-time-select"
+              >
+                {spec.timeRange.options.map((opt) => (
+                  <option key={opt} value={opt}>
+                    Last {opt}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={12} className="dashboard-time-select-icon" />
+            </div>
+            <button className="dashboard-refresh-btn">
+              <RefreshCw size={14} />
+            </button>
           </div>
-          <button className="p-1.5 rounded-md hover:bg-bg-hover text-text-muted transition-colors">
-            <RefreshCw size={14} />
-          </button>
         </div>
-      </div>
+      ) : (
+        <div className="dashboard-layout-header flat-header">
+          <div className="dashboard-menu-tabs">
+            {analyticsViews.map((tab) => {
+              const isSelected = activeAnalyticsView === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveAnalyticsView(tab.id)}
+                  className={cn(
+                    "dashboard-menu-tab-btn",
+                    isSelected ? "active" : "inactive"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="dashboard-header-controls">
+            <div className="dashboard-time-select-wrapper">
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="dashboard-time-select"
+              >
+                {spec.timeRange.options.map((opt) => (
+                  <option key={opt} value={opt}>
+                    Last {opt}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={12} className="dashboard-time-select-icon" />
+            </div>
+            <button className="dashboard-refresh-btn">
+              <RefreshCw size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Widget Grid */}
-      <div className="flex-1 overflow-auto p-4">
-        <div className="grid grid-cols-4 gap-px bg-border max-w-7xl mx-auto">
+      <div className={cn("dashboard-grid-wrapper", isNested ? "nested-grid" : "flat-grid")}>
+        <div className="dashboard-grid">
           {spec.widgets.map((widget) => (
             <WidgetRenderer key={widget.id} spec={widget} />
           ))}

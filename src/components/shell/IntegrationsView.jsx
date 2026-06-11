@@ -1,86 +1,89 @@
 import { useState } from 'react';
 import { Plug, Plus, Check, AlertCircle } from 'lucide-react';
+import { ViewFrame } from '@/components/shell/ViewFrame';
+import { cn } from '@/lib/utils';
+import '@/styles/integrations.css';
 
 export function IntegrationsView() {
-  const [integrations, setIntegrations] = useState([
+  const [integrations] = useState([
     { id: '1', name: 'PostgreSQL', type: 'database', status: 'connected', lastSync: '2 min ago' },
     { id: '2', name: 'Kafka', type: 'stream', status: 'connected', lastSync: '5 min ago' },
     { id: '3', name: 'S3 Bucket', type: 'storage', status: 'error', lastSync: '1h ago' },
-    { id: '4', name: 'Redis', type: 'cache', status: 'connected', lastSync: '1 min ago' },
   ]);
 
-  const available = [
-    { name: 'MongoDB', type: 'database' },
-    { name: 'RabbitMQ', type: 'stream' },
-    { name: 'Elasticsearch', type: 'search' },
-    { name: 'Datadog', type: 'monitoring' },
-  ];
+  const [available] = useState([
+    { name: 'Redis', type: 'cache', description: 'In-memory data structure store' },
+    { name: 'Slack', type: 'notification', description: 'Team communication and alerts' },
+    { name: 'Datadog', type: 'monitoring', description: 'Cloud monitoring and analytics' },
+  ]);
 
   return (
-    <div className="h-full overflow-auto p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-text-primary">Integrations</h2>
-          <button className="flex items-center gap-2 px-4 py-2 bg-accent text-bg-primary rounded-md text-sm font-medium hover:bg-accent-hover transition-colors">
-            <Plus size={16} />
-            Add Integration
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <ViewFrame
+      title="Integrations"
+      description="Sources and services use the same padded page rhythm as the dashboard views."
+      maxWidthClassName="max-w-6xl"
+      actions={
+        <button className="flex items-center gap-2 rounded-2xl bg-accent px-4 py-2 text-sm font-medium text-bg-primary transition-colors hover:bg-accent-hover">
+          <Plus size={16} />
+          Add Integration
+        </button>
+      }
+    >
+      <div className="integrations-wrapper">
+        <div className="integrations-grid">
           {integrations.map((integration) => (
-            <div key={integration.id} className="bg-bg-secondary border border-border rounded-lg p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-bg-tertiary flex items-center justify-center">
-                    <Plug size={20} className="text-accent" />
+            <div key={integration.id} className="integration-card">
+              <div className="integration-card-header">
+                <div className="integration-card-info">
+                  <div className="integration-icon-container">
+                    <Plug size={20} className="integration-icon-text" />
                   </div>
-                  <div>
-                    <div className="text-sm font-medium text-text-primary">{integration.name}</div>
-                    <div className="text-xs text-text-muted capitalize">{integration.type}</div>
+                  <div className="integration-name-status">
+                    <span className="integration-name">{integration.name}</span>
+                    <span className="integration-type">{integration.type}</span>
                   </div>
                 </div>
-                <div className={`flex items-center gap-1.5 text-xs ${
-                  integration.status === 'connected' ? 'text-green-400' : 'text-red-400'
-                }`}>
+                <div className={cn("status-badge", integration.status)}>
                   {integration.status === 'connected' ? (
-                    <Check size={12} />
+                    <>
+                      <Check size={12} />
+                      Connected
+                    </>
                   ) : (
-                    <AlertCircle size={12} />
+                    <>
+                      <AlertCircle size={12} />
+                      Error
+                    </>
                   )}
-                  {integration.status}
                 </div>
               </div>
-              <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
-                <span className="text-xs text-text-muted">Last sync: {integration.lastSync}</span>
-                <button className="text-xs text-accent hover:text-accent-hover transition-colors">
-                  Configure
-                </button>
+
+              <div className="integration-card-meta">
+                <span className="integration-sync-time">Last sync: {integration.lastSync}</span>
+                <button className="integration-sync-btn">Sync Now</button>
               </div>
             </div>
           ))}
         </div>
 
-        <h3 className="text-sm font-medium text-text-primary mb-3">Available Integrations</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <h3 className="available-integrations-title">Available Integrations</h3>
+        <div className="integrations-grid">
           {available.map((item) => (
-            <div key={item.name} className="bg-bg-secondary border border-border rounded-lg p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-bg-tertiary flex items-center justify-center">
-                  <Plug size={20} className="text-text-muted" />
+            <div key={item.name} className="integration-available-card">
+              <div className="integration-card-info">
+                <div className="integration-icon-container">
+                  <Plug size={20} className="integration-icon-text" />
                 </div>
-                <div>
-                  <div className="text-sm font-medium text-text-primary">{item.name}</div>
-                  <div className="text-xs text-text-muted capitalize">{item.type}</div>
+                <div className="integration-name-status">
+                  <span className="integration-name">{item.name}</span>
+                  <span className="integration-type">{item.type} — {item.description}</span>
                 </div>
               </div>
-              <button className="px-3 py-1.5 border border-border rounded-md text-xs text-text-secondary hover:bg-bg-hover transition-colors">
-                Connect
-              </button>
+              <button className="integration-available-connect-btn">Connect</button>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </ViewFrame>
   );
 }

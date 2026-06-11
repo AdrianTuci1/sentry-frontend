@@ -1,0 +1,179 @@
+/* ==========================================================================
+   Header and Navbar Styles
+   ========================================================================== */
+
+.app-header {
+  flex-shrink: 0;
+  background-color: transparent;
+  padding-top: 8px; /* 8px top padding */
+  padding-bottom: 8px; /* 8px bottom padding */
+  padding-left: 16px; /* restored to 16px */
+  padding-right: 16px; /* restored to 16px */
+  border-bottom: 1px solid #25282C;
+}
+
+.app-header-inner {
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  max-width: 80rem; /* 1280px */
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.header-left-side {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Sidebar Trigger overrides */
+.header-sidebar-trigger {
+  height: 32px !important; /* reduced to 32px */
+  width: 32px !important;  /* reduced to 32px */
+  border-radius: 8px !important;
+  border: 1px solid #25282C !important;
+  background-color: #111214 !important;
+  color: #E3E3E3 !important;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.header-sidebar-trigger:hover {
+  background-color: #1A1C1F !important;
+  color: #FFFFFF !important;
+}
+
+.header-divider {
+  height: 20px; /* reduced from 28px */
+  width: 1px;
+  background-color: #25282C;
+}
+
+.header-section-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-section-icon {
+  color: #8E918F;
+}
+
+.header-section-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px; /* slightly smaller font */
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.header-right-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Search bar button */
+.header-search-btn {
+  display: flex;
+  height: 32px; /* reduced from 44px */
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px; /* tighter radius */
+  border: 1px solid #25282C;
+  background-color: #111214;
+  padding-left: 12px;
+  padding-right: 12px;
+  color: #E3E3E3;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.header-search-btn:hover {
+  background-color: #1A1C1F;
+}
+
+.header-search-text {
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .header-search-text {
+    display: none;
+  }
+}
+
+.header-search-kbd {
+  background-color: #23262A;
+  color: #8E918F;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+@media (max-width: 768px) {
+  .header-search-kbd {
+    display: none;
+  }
+}
+
+/* Notification Button */
+.header-bell-btn {
+  position: relative;
+  display: flex;
+  height: 32px; /* reduced from 44px */
+  width: 32px;  /* reduced from 44px */
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px; /* tighter radius */
+  border: 1px solid #25282C;
+  background-color: #111214;
+  color: #E3E3E3;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.header-bell-btn:hover {
+  background-color: #1A1C1F;
+}
+
+.header-bell-badge {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  height: 6px;
+  width: 6px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+}
+
+/* User Avatar wrapper */
+.header-avatar-wrapper {
+  margin-left: 2px;
+  display: flex;
+  height: 32px; /* reduced from 48px */
+  width: 32px;  /* reduced from 48px */
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #25282C;
+  background-color: #111214;
+}
+
+.header-avatar-circle {
+  display: flex;
+  height: 24px; /* reduced from 40px */
+  width: 24px;  /* reduced from 40px */
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  font-size: 11px; /* reduced from 14px */
+  font-weight: 600;
+  color: #000000;
+}
