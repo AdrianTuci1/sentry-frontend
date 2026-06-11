@@ -10,6 +10,7 @@ import { OrganizationOrganizationsView } from "@/components/shell/OrganizationOr
 import { OrganizationAccessView } from "@/components/shell/OrganizationAccessView";
 import { OrganizationBillingView } from "@/components/shell/OrganizationBillingView";
 import { OrganizationSettingsView } from "@/components/shell/OrganizationSettingsView";
+import { OrganizationStatsView } from "@/components/shell/OrganizationStatsView";
 import { useAppStore } from "@/stores/useAppStore";
 
 const sectionComponents = {
@@ -24,6 +25,7 @@ const sectionComponents = {
   "organization-access": OrganizationAccessView,
   "organization-billing": OrganizationBillingView,
   "organization-settings": OrganizationSettingsView,
+  "organization-stats": OrganizationStatsView,
 };
 
 function App() {
