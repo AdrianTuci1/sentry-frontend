@@ -100,6 +100,15 @@
   color: #FFFFFF !important;
 }
 
+.sidebar-switcher-trigger.static {
+  cursor: default !important;
+}
+
+.sidebar-switcher-trigger.static:hover {
+  background-color: transparent !important;
+  color: #8E918F !important;
+}
+
 .sidebar-switcher-trigger:active {
   background-color: #1C1C1F !important;
 }
@@ -309,6 +318,13 @@
 .sidebar-nav-icon svg {
   width: 15px !important; /* icons made smaller to fit 4-6px concept */
   height: 15px !important;
+}
+
+.sidebar-nav-org-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
 }
 
 .sidebar-nav-label {

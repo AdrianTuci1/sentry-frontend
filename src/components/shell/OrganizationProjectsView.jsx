@@ -3,7 +3,10 @@ import { ViewFrame } from '@/components/shell/ViewFrame';
 import { useAppStore } from '@/stores/useAppStore';
 
 export function OrganizationProjectsView() {
-  const { workspaces } = useAppStore();
+  const { currentOrganization, workspaces } = useAppStore();
+  const organizationProjects = workspaces.filter(
+    (workspace) => workspace.organizationId === currentOrganization.id
+  );
 
   return (
     <ViewFrame
@@ -18,7 +21,7 @@ export function OrganizationProjectsView() {
       }
     >
       <div className="grid gap-4">
-        {workspaces.map((workspace) => (
+        {organizationProjects.map((workspace) => (
           <div
             key={workspace.id}
             className="rounded-2xl border border-border bg-bg-secondary px-4 py-4"

@@ -1,15 +1,37 @@
 import { create } from 'zustand';
 
 export const useAppStore = create((set, get) => ({
+  organizations: [
+    {
+      id: 'efferd-org',
+      name: 'Efferd',
+      owner: 'Adrian.tucicovenco@gmail.com',
+      plan: 'Agency',
+    },
+    {
+      id: 'staticlabs-org',
+      name: 'Staticlabs',
+      owner: 'ops@staticlabs.ro',
+      plan: 'Growth',
+    },
+    {
+      id: 'octomus-org',
+      name: 'Octomus',
+      owner: 'team@octomus.dev',
+      plan: 'Scale',
+    },
+  ],
+
   currentOrganization: {
-    id: 'adrian-account',
-    name: "Adrian.tucicovenco@gmail.com's Account",
+    id: 'efferd-org',
+    name: 'Efferd',
     owner: 'Adrian.tucicovenco@gmail.com',
     plan: 'Agency',
   },
 
   currentWorkspace: {
     id: 'pixtooth',
+    organizationId: 'efferd-org',
     name: 'Pixtooth',
     domain: 'pixtooth.com',
     status: 'Healthy',
@@ -22,6 +44,7 @@ export const useAppStore = create((set, get) => ({
   workspaces: [
     {
       id: 'pixtooth',
+      organizationId: 'efferd-org',
       name: 'Pixtooth',
       domain: 'pixtooth.com',
       status: 'Healthy',
@@ -32,6 +55,7 @@ export const useAppStore = create((set, get) => ({
     },
     {
       id: 'octomus',
+      organizationId: 'octomus-org',
       name: 'Octomus',
       domain: 'octomus.dev',
       status: 'Healthy',
@@ -42,6 +66,7 @@ export const useAppStore = create((set, get) => ({
     },
     {
       id: 'staticlabs',
+      organizationId: 'staticlabs-org',
       name: 'Staticlabs',
       domain: 'staticlabs.ro',
       status: 'Monitoring',
@@ -52,6 +77,7 @@ export const useAppStore = create((set, get) => ({
     },
     {
       id: 'tuci',
+      organizationId: 'efferd-org',
       name: 'Tuci',
       domain: 'tuci.dev',
       status: 'Healthy',
@@ -137,13 +163,36 @@ export const useAppStore = create((set, get) => ({
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
   toggleDemoMode: () => set((state) => ({ demoMode: !state.demoMode })),
 
+  selectOrganization: (organizationId) => {
+    const organization = get().organizations.find((item) => item.id === organizationId);
+    if (!organization) {
+      return;
+    }
+
+    const organizationWorkspaces = get().workspaces.filter(
+      (workspace) => workspace.organizationId === organizationId
+    );
+
+    set((state) => ({
+      currentOrganization: organization,
+      currentWorkspace: organizationWorkspaces[0] || state.currentWorkspace,
+      activeScope: 'organization',
+      activeSection: state.activeOrganizationSection || 'organization-home',
+    }));
+  },
+
   selectWorkspace: (workspaceId) => {
     const workspace = get().workspaces.find((item) => item.id === workspaceId);
     if (!workspace) {
       return;
     }
 
+    const organization = get().organizations.find(
+      (item) => item.id === workspace.organizationId
+    );
+
     set((state) => ({
+      currentOrganization: organization || state.currentOrganization,
       currentWorkspace: workspace,
       activeScope: 'project',
       activeSection: state.activeProjectSection || 'analytics',
@@ -154,6 +203,7 @@ export const useAppStore = create((set, get) => ({
     const id = `project_${Date.now()}`;
     const newWorkspace = {
       id,
+      organizationId: get().currentOrganization.id,
       name,
       domain: `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.workspace`,
       status: 'Healthy',

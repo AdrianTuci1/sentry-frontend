@@ -18,6 +18,9 @@ function MetricTile({ label, value, detail, trend }) {
 
 export function OrganizationHomeView() {
   const { currentOrganization, workspaces, organizationMetrics } = useAppStore();
+  const organizationProjects = workspaces.filter(
+    (workspace) => workspace.organizationId === currentOrganization.id
+  );
 
   return (
     <ViewFrame className="organization-home-frame" maxWidthClassName="max-w-7xl">
@@ -49,7 +52,7 @@ export function OrganizationHomeView() {
               />
               <MetricTile
                 label="Active projects"
-                value={organizationMetrics.activeProjects.value}
+                value={String(organizationProjects.length)}
                 detail={organizationMetrics.activeProjects.detail}
                 trend={organizationMetrics.activeProjects.trend}
               />
@@ -108,11 +111,11 @@ export function OrganizationHomeView() {
                 <Briefcase size={18} />
                 <span>Projects</span>
               </div>
-              <span className="organization-card-pill">{workspaces.length}</span>
+              <span className="organization-card-pill">{organizationProjects.length}</span>
             </div>
 
             <div className="organization-project-list">
-              {workspaces.map((workspace) => (
+              {organizationProjects.map((workspace) => (
                 <div key={workspace.id} className="organization-project-row">
                   <div className="organization-project-main">
                     <div className="organization-project-dot" />
