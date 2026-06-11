@@ -8,10 +8,10 @@ export function LineChartWidget({ data, config }) {
   const min = Math.min(...allValues);
   const range = max - min || 1;
 
-  const colors = ['#E4E4E7', '#6B7280', '#3F3F46', '#27272A'];
+  const colors = ['#A8C7FA', '#6B7280', '#3F3F46', '#27272A'];
 
   return (
-    <div className="h-full p-4 flex flex-col">
+    <div className="line-chart-widget-container">
       {config?.showLegend && (
         <div className="flex gap-4 mb-3">
           {datasets?.map((ds, i) => (

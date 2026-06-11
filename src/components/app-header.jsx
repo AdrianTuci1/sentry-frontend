@@ -1,76 +1,192 @@
 import { useAppStore } from "@/stores/useAppStore";
-import { analyticsViews } from "@/components/app-shared";
-import { Bell, Search, ChevronDown, RefreshCw } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { findSectionById } from "@/components/app-shared";
+import {
+  Bell,
+  LayoutGrid,
+  LogOut,
+  Settings,
+  User,
+  HelpCircle,
+  CheckCheck,
+  Settings2,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
+import "@/styles/header.css";
+
+const notifications = [
+  {
+    id: 'n1',
+    title: 'Pixtooth sync completed',
+    detail: 'All 12 connectors synced successfully.',
+    time: '2 min ago',
+    read: false,
+  },
+  {
+    id: 'n2',
+    title: 'Octomus latency alert',
+    detail: 'Warehouse jobs are running 34% slower than baseline.',
+    time: '18 min ago',
+    read: false,
+  },
+  {
+    id: 'n3',
+    title: 'New connector available',
+    detail: 'Salesforce connector is now ready to configure.',
+    time: '1h ago',
+    read: true,
+  },
+  {
+    id: 'n4',
+    title: 'Staticlabs billing updated',
+    detail: 'Plan changed from Growth to Scale.',
+    time: '3h ago',
+    read: true,
+  },
+];
 
 export function AppHeader() {
-  const {
-    activeSection,
-    activeAnalyticsView,
-    setActiveAnalyticsView,
-  } = useAppStore();
+  const { activeSection, activeScope, currentOrganization, currentWorkspace } = useAppStore();
+  const section = findSectionById(activeScope, activeSection);
+  const scopeLabel =
+    activeScope === "organization" ? currentOrganization.name : currentWorkspace.name;
 
-  const isAnalytics = activeSection === "analytics";
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <header className="border-b border-[#2A2D31] bg-[#131314] px-4 py-3">
-      <div className="max-w-7xl mx-auto">
-        {/* Top row - Title and controls */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-4">
-            <h1 className="text-lg font-semibold text-[#E3E3E3]">
-              {isAnalytics ? "Analytics" : activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button className="p-2 rounded-md hover:bg-[#2A2D31] text-[#8E918F] transition-colors">
-              <Search size={16} />
-            </button>
-            <button className="p-2 rounded-md hover:bg-[#2A2D31] text-[#8E918F] transition-colors relative">
-              <Bell size={16} />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#A8C7FA] rounded-full" />
-            </button>
-            <div className="w-7 h-7 rounded-full bg-[#A8C7FA]/20 flex items-center justify-center ml-1">
-              <span className="text-xs font-medium text-[#A8C7FA]">U</span>
+    <header className="app-header">
+      <div className="app-header-inner">
+        <div className="header-left-side">
+          <SidebarTrigger className="header-sidebar-trigger" />
+          <div className="header-divider" />
+          <div className="header-section-title">
+            <LayoutGrid size={18} className="header-section-icon" />
+            <div className="header-section-copy">
+              <span className="header-section-eyebrow">
+                {activeScope === "organization" ? "Organization" : "Project"}
+              </span>
+              <span className="header-section-text">
+                {scopeLabel} · {section?.title || "Dashboard"}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Bottom row - View switcher and filters */}
-        {isAnalytics && (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              {analyticsViews.map((view) => (
-                <button
-                  key={view.id}
-                  onClick={() => setActiveAnalyticsView(view.id)}
-                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-                    activeAnalyticsView === view.id
-                      ? "bg-[#2A2D31] text-[#A8C7FA] font-medium"
-                      : "text-[#8E918F] hover:bg-[#2A2D31] hover:text-[#E3E3E3]"
-                  }`}
-                >
-                  {view.label}
+        <div className="header-right-side">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <button className="header-bell-btn">
+                  <Bell size={18} />
+                  {unreadCount > 0 && <span className="header-bell-badge" />}
                 </button>
-              ))}
-            </div>
+              }
+            />
+            <DropdownMenuContent
+              side="bottom"
+              align="end"
+              sideOffset={8}
+              className="header-dropdown-content"
+            >
+              <DropdownMenuGroup className="header-dropdown-label">
+                <DropdownMenuItem className="header-dropdown-label-row" onClick={(e) => e.preventDefault()}>
+                  <div className="header-dropdown-label-inner">
+                    <span className="header-dropdown-label-text">Notifications</span>
+                    {unreadCount > 0 && (
+                      <span className="header-dropdown-count">{unreadCount}</span>
+                    )}
+                  </div>
+                  <button
+                    className="header-dropdown-mark-read"
+                    onClick={(e) => { e.stopPropagation(); }}
+                  >
+                    <CheckCheck size={14} />
+                    Mark all read
+                  </button>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
 
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <select className="appearance-none bg-[#1E1F20] border border-[#2A2D31] rounded-md px-3 py-1.5 pr-8 text-xs text-[#E3E3E3] focus:outline-none focus:border-[#A8C7FA]">
-                  <option>Last 1h</option>
-                  <option>Last 6h</option>
-                  <option>Last 24h</option>
-                  <option>Last 7d</option>
-                </select>
-                <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8E918F] pointer-events-none" />
-              </div>
-              <button className="p-1.5 rounded-md hover:bg-[#2A2D31] text-[#8E918F] transition-colors">
-                <RefreshCw size={14} />
-              </button>
-            </div>
-          </div>
-        )}
+              {notifications.map((n) => (
+                <DropdownMenuItem key={n.id} className="header-notif-item" onClick={(e) => e.preventDefault()}>
+                  <div className="header-notif-left">
+                    {!n.read && <span className="header-notif-dot" />}
+                    <div className="header-notif-copy">
+                      <span className={`header-notif-title ${!n.read ? 'unread' : ''}`}>
+                        {n.title}
+                      </span>
+                      <span className="header-notif-detail">{n.detail}</span>
+                    </div>
+                  </div>
+                  <span className="header-notif-time">{n.time}</span>
+                </DropdownMenuItem>
+              ))}
+
+              <DropdownMenuSeparator className="header-dropdown-separator" />
+
+              <DropdownMenuItem className="header-dropdown-action">
+                <Settings2 size={14} />
+                Notification settings
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <div className="header-avatar-wrapper">
+                  <div className="header-avatar-circle">A</div>
+                </div>
+              }
+            />
+            <DropdownMenuContent
+              side="bottom"
+              align="end"
+              sideOffset={8}
+              className="header-dropdown-content"
+            >
+              <DropdownMenuGroup className="header-dropdown-label">
+                <DropdownMenuItem className="header-dropdown-label-row" onClick={(e) => e.preventDefault()}>
+                  <div className="header-user-label">
+                    <div className="header-user-avatar-sm">A</div>
+                    <div>
+                      <div className="header-user-name">Adrian Tucicovenco</div>
+                      <div className="header-user-email">adrian@efferd.io</div>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator className="header-dropdown-separator" />
+
+              <DropdownMenuItem className="header-dropdown-action" onClick={(e) => e.preventDefault()}>
+                <User size={14} />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem className="header-dropdown-action" onClick={(e) => e.preventDefault()}>
+                <Settings size={14} />
+                Account settings
+              </DropdownMenuItem>
+              <DropdownMenuItem className="header-dropdown-action" onClick={(e) => e.preventDefault()}>
+                <HelpCircle size={14} />
+                Help & support
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="header-dropdown-separator" />
+
+              <DropdownMenuItem className="header-dropdown-action header-dropdown-danger" onClick={(e) => e.preventDefault()}>
+                <LogOut size={14} />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   );

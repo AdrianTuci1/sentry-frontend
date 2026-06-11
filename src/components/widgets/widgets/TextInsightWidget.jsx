@@ -1,9 +1,10 @@
 export function TextInsightWidget({ data, config }) {
-  const { text, highlights } = data;
+  const { text, highlights, actionLabel } = data;
+  const compact = Boolean(config?.compact);
 
   const renderText = () => {
     if (!text) return null;
-    if (!highlights?.length) return <span className="text-sm text-text-secondary">{text}</span>;
+    if (!highlights?.length) return <span>{text}</span>;
 
     let result = text;
     highlights.forEach((h) => {
@@ -18,7 +19,7 @@ export function TextInsightWidget({ data, config }) {
       const match = part.match(/__HIGHLIGHT_(.+)__/);
       if (match) {
         return (
-          <span key={i} className="font-semibold text-text-primary">
+          <span key={i} className="highlight">
             {match[1]}
           </span>
         );
@@ -28,8 +29,13 @@ export function TextInsightWidget({ data, config }) {
   };
 
   return (
-    <div className="h-full p-4 flex items-center">
-      <p className="text-sm text-text-secondary leading-relaxed">
+    <div className={`text-insight-widget-container ${actionLabel ? 'has-action' : ''} ${compact ? 'is-compact' : ''}`}>
+      {actionLabel ? (
+        <div className="text-insight-widget-toolbar">
+          <span className="text-insight-widget-action">{actionLabel}</span>
+        </div>
+      ) : null}
+      <p className="leading-relaxed">
         {renderText()}
       </p>
     </div>

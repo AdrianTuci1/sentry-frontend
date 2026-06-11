@@ -1,48 +1,269 @@
 import { create } from 'zustand';
 
 export const useAppStore = create((set, get) => ({
-  // Workspace state
-  currentWorkspace: {
-    id: 'default',
-    name: 'Sentry Data',
-  },
-  workspaces: [
-    { id: 'default', name: 'Sentry Data' },
+  organizations: [
+    {
+      id: 'efferd-org',
+      name: 'Efferd',
+      owner: 'Adrian.tucicovenco@gmail.com',
+      plan: 'Agency',
+    },
+    {
+      id: 'staticlabs-org',
+      name: 'Staticlabs',
+      owner: 'ops@staticlabs.ro',
+      plan: 'Growth',
+    },
+    {
+      id: 'octomus-org',
+      name: 'Octomus',
+      owner: 'team@octomus.dev',
+      plan: 'Scale',
+    },
   ],
 
-  // Navigation state
+  currentOrganization: {
+    id: 'efferd-org',
+    name: 'Efferd',
+    owner: 'Adrian.tucicovenco@gmail.com',
+    plan: 'Agency',
+  },
+
+  currentWorkspace: {
+    id: 'pixtooth',
+    organizationId: 'efferd-org',
+    name: 'Pixtooth',
+    domain: 'pixtooth.com',
+    status: 'Healthy',
+    monthlyEvents: '13K',
+    dataConsumption: '612 GB',
+    lastUpdated: '4 min ago',
+    connectors: ['Stripe', 'PostHog', 'HubSpot'],
+  },
+
+  workspaces: [
+    {
+      id: 'pixtooth',
+      organizationId: 'efferd-org',
+      name: 'Pixtooth',
+      domain: 'pixtooth.com',
+      status: 'Healthy',
+      monthlyEvents: '13K',
+      dataConsumption: '612 GB',
+      lastUpdated: '4 min ago',
+      connectors: ['Stripe', 'PostHog', 'HubSpot'],
+    },
+    {
+      id: 'octomus',
+      organizationId: 'octomus-org',
+      name: 'Octomus',
+      domain: 'octomus.dev',
+      status: 'Healthy',
+      monthlyEvents: '2.7K',
+      dataConsumption: '421 GB',
+      lastUpdated: '11 min ago',
+      connectors: ['Stripe', 'Sentry', 'GA4'],
+    },
+    {
+      id: 'staticlabs',
+      organizationId: 'staticlabs-org',
+      name: 'Staticlabs',
+      domain: 'staticlabs.ro',
+      status: 'Monitoring',
+      monthlyEvents: '1.9K',
+      dataConsumption: '286 GB',
+      lastUpdated: '18 min ago',
+      connectors: ['Shopify', 'Klaviyo', 'PostHog'],
+    },
+    {
+      id: 'tuci',
+      organizationId: 'efferd-org',
+      name: 'Tuci',
+      domain: 'tuci.dev',
+      status: 'Healthy',
+      monthlyEvents: '334',
+      dataConsumption: '92 GB',
+      lastUpdated: '42 min ago',
+      connectors: ['HubSpot', 'BigQuery', 'Slack'],
+    },
+  ],
+
+  activeScope: 'project',
   activeSection: 'analytics',
+  activeProjectSection: 'analytics',
+  activeOrganizationSection: 'organization-home',
 
-  // Analytics sub-views
   activeAnalyticsView: 'servers',
+  timeRange: '1h',
 
-  // Sidebar state
   sidebarCollapsed: false,
+  demoMode: true,
 
-  // Chat state
   chatSessions: [],
   activeChatId: null,
   isChatPanelOpen: true,
 
-  setActiveSection: (section) => set({ activeSection: section }),
+  organizationMetrics: {
+    managedOrganizations: {
+      value: '18',
+      detail: '6 active, 12 monitored',
+      trend: '+3 this quarter',
+    },
+    activeProjects: {
+      value: '7',
+      detail: '4 billable, 3 internal',
+      trend: '+2 this month',
+    },
+    warehouseConsumption: {
+      value: '3.8 TB',
+      detail: 'across raw + modeled layers',
+      trend: '+12.4%',
+    },
+    monthlyCompute: {
+      value: '$2.4k',
+      detail: 'BigQuery + orchestration',
+      trend: '-8.1%',
+    },
+    connectedSources: {
+      value: '41',
+      detail: '94.8% healthy',
+      trend: '+7.3%',
+    },
+    topConnector: {
+      value: 'Stripe',
+      detail: 'used in 6 projects',
+      trend: '62% adoption',
+    },
+    connectorUsage: [
+      { name: 'Stripe', count: 6, share: 86 },
+      { name: 'PostHog', count: 5, share: 72 },
+      { name: 'HubSpot', count: 4, share: 58 },
+      { name: 'BigQuery', count: 3, share: 41 },
+    ],
+    recentActivity: [
+      { title: 'Staticlabs sync latency improved', meta: 'Warehouse jobs down 14% after cache tuning.' },
+      { title: 'Octomus enabled Salesforce push', meta: 'Destination activation is now live for deal health alerts.' },
+      { title: 'Pixtooth added two new sources', meta: 'GA4 and Sentry were connected in the last 24 hours.' },
+    ],
+  },
+
+  setActiveSection: (section) =>
+    set((state) => ({
+      activeSection: section,
+      activeProjectSection:
+        state.activeScope === 'project' ? section : state.activeProjectSection,
+      activeOrganizationSection:
+        state.activeScope === 'organization' ? section : state.activeOrganizationSection,
+    })),
 
   setActiveAnalyticsView: (view) => set({ activeAnalyticsView: view }),
 
+  setTimeRange: (timeRange) => set({ timeRange }),
+
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+  toggleDemoMode: () => set((state) => ({ demoMode: !state.demoMode })),
+
+  selectOrganization: (organizationId) => {
+    const organization = get().organizations.find((item) => item.id === organizationId);
+    if (!organization) {
+      return;
+    }
+
+    const organizationWorkspaces = get().workspaces.filter(
+      (workspace) => workspace.organizationId === organizationId
+    );
+
+    set((state) => ({
+      currentOrganization: organization,
+      currentWorkspace: organizationWorkspaces[0] || state.currentWorkspace,
+      activeScope: 'organization',
+      activeSection: state.activeOrganizationSection || 'organization-home',
+    }));
+  },
 
   selectWorkspace: (workspaceId) => {
-    const ws = get().workspaces.find(w => w.id === workspaceId);
-    if (ws) set({ currentWorkspace: ws });
+    const workspace = get().workspaces.find((item) => item.id === workspaceId);
+    if (!workspace) {
+      return;
+    }
+
+    const organization = get().organizations.find(
+      (item) => item.id === workspace.organizationId
+    );
+
+    set((state) => ({
+      currentOrganization: organization || state.currentOrganization,
+      currentWorkspace: workspace,
+      activeScope: 'project',
+      activeSection: state.activeProjectSection || 'analytics',
+    }));
   },
 
   createWorkspace: (name) => {
-    const id = `ws_${Date.now()}`;
-    const newWs = { id, name };
+    const id = `project_${Date.now()}`;
+    const newWorkspace = {
+      id,
+      organizationId: get().currentOrganization.id,
+      name,
+      domain: `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.workspace`,
+      status: 'Healthy',
+      monthlyEvents: '0',
+      dataConsumption: '0 GB',
+      lastUpdated: 'just now',
+      connectors: [],
+    };
+
     set((state) => ({
-      workspaces: [...state.workspaces, newWs],
-      currentWorkspace: newWs,
+      workspaces: [...state.workspaces, newWorkspace],
+      currentWorkspace: newWorkspace,
+      activeScope: 'project',
+      activeSection: state.activeProjectSection || 'analytics',
     }));
   },
+
+  createOrganization: (name) => {
+    const id = `org_${Date.now()}`;
+    const newOrg = {
+      id,
+      name,
+      owner: 'you@example.com',
+      plan: 'Starter',
+    };
+
+    const newWorkspace = {
+      id: `project_${Date.now()}`,
+      organizationId: id,
+      name: `${name} default`,
+      domain: `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.workspace`,
+      status: 'Healthy',
+      monthlyEvents: '0',
+      dataConsumption: '0 GB',
+      lastUpdated: 'just now',
+      connectors: [],
+    };
+
+    set((state) => ({
+      organizations: [...state.organizations, newOrg],
+      workspaces: [...state.workspaces, newWorkspace],
+      currentOrganization: newOrg,
+      currentWorkspace: newWorkspace,
+      activeScope: 'organization',
+      activeSection: state.activeOrganizationSection || 'organization-home',
+    }));
+  },
+
+  goToOrganizationHome: () =>
+    set((state) => ({
+      activeScope: 'organization',
+      activeSection: state.activeOrganizationSection || 'organization-home',
+    })),
+
+  openOrganizationSection: (section) =>
+    set({
+      activeScope: 'organization',
+      activeSection: section,
+      activeOrganizationSection: section,
+    }),
 
   createChatSession: (title = 'New Chat') => {
     const session = {
@@ -60,28 +281,36 @@ export const useAppStore = create((set, get) => ({
 
   selectChat: (chatId) => set({ activeChatId: chatId }),
 
-  deleteChatSession: (chatId) => set((state) => {
-    const filtered = state.chatSessions.filter(c => c.id !== chatId);
-    return {
-      chatSessions: filtered,
-      activeChatId: state.activeChatId === chatId
-        ? (filtered.length > 0 ? filtered[0].id : null)
-        : state.activeChatId,
-    };
-  }),
+  deleteChatSession: (chatId) =>
+    set((state) => {
+      const filtered = state.chatSessions.filter((chat) => chat.id !== chatId);
+      return {
+        chatSessions: filtered,
+        activeChatId:
+          state.activeChatId === chatId
+            ? filtered.length > 0
+              ? filtered[0].id
+              : null
+            : state.activeChatId,
+      };
+    }),
 
-  addMessage: (chatId, message) => set((state) => ({
-    chatSessions: state.chatSessions.map(chat =>
-      chat.id === chatId
-        ? {
-            ...chat,
-            messages: [...chat.messages, {
-              id: `msg_${Date.now()}`,
-              ...message,
-              timestamp: new Date().toISOString(),
-            }]
-          }
-        : chat
-    ),
-  })),
+  addMessage: (chatId, message) =>
+    set((state) => ({
+      chatSessions: state.chatSessions.map((chat) =>
+        chat.id === chatId
+          ? {
+              ...chat,
+              messages: [
+                ...chat.messages,
+                {
+                  id: `msg_${Date.now()}`,
+                  ...message,
+                  timestamp: new Date().toISOString(),
+                },
+              ],
+            }
+          : chat
+      ),
+    })),
 }));

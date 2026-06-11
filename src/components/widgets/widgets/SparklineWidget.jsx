@@ -19,12 +19,16 @@ export function SparklineWidget({ data, config }) {
     ? `0,100 ${points} 100,100`
     : null;
 
+  // Subtle accent color for sparklines (soft blue)
+  const strokeColor = '#A8C7FA';
+  const fillColor = 'rgba(168, 199, 250, 0.08)';
+
   return (
-    <div className="h-full p-4 flex flex-col">
+    <div className="sparkline-widget-container">
       {config?.showAxes && (
-        <div className="flex justify-between text-xs text-text-muted mb-2">
-          <span>{Math.round(max)}</span>
-          <span>{Math.round(min)}</span>
+        <div className="flex justify-between text-[10px] text-text-muted mb-2 font-mono">
+          <span>MAX: {Math.round(max)}</span>
+          <span>MIN: {Math.round(min)}</span>
         </div>
       )}
       <div className="flex-1 relative">
@@ -32,16 +36,14 @@ export function SparklineWidget({ data, config }) {
           {fillPoints && (
             <polygon
               points={fillPoints}
-              fill="currentColor"
-              className="text-text-muted/10"
+              fill={fillColor}
             />
           )}
           <polyline
             points={points}
             fill="none"
-            stroke="currentColor"
+            stroke={strokeColor}
             strokeWidth="1.5"
-            className="text-text-secondary"
             vectorEffect="non-scaling-stroke"
           />
         </svg>

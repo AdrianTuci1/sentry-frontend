@@ -9,99 +9,471 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
+  SidebarSeparator,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarGroupAction,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { navItems } from "@/components/app-shared";
+import { LogoIcon } from "@/components/logo";
+import { getNavigationGroups } from "@/components/app-shared";
 import { useAppStore } from "@/stores/useAppStore";
-import { ChevronDown, Plus } from "lucide-react";
+import {
+  Plus,
+  LayoutDashboard,
+  BarChart3,
+  Briefcase,
+  Plug,
+  Settings,
+  BookOpen,
+  Rocket,
+  GitBranch,
+  MessageSquare,
+  Undo2,
+  Users,
+  CreditCard,
+  Power,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import "@/styles/sidebar.css";
+
+const sectionIcons = {
+  "bar-chart-3": BarChart3,
+  briefcase: Briefcase,
+  "credit-card": CreditCard,
+  "git-branch": GitBranch,
+  "layout-dashboard": LayoutDashboard,
+  "message-square": MessageSquare,
+  plug: Plug,
+  rocket: Rocket,
+  settings: Settings,
+  users: Users,
+};
 
 export function AppSidebar() {
   const {
+    currentOrganization,
     currentWorkspace,
+    organizations,
     workspaces,
+    activeScope,
     activeSection,
     setActiveSection,
+    selectOrganization,
     selectWorkspace,
+    createOrganization,
     createWorkspace,
+    goToOrganizationHome,
+    chatSessions,
+    activeChatId,
+    selectChat,
+    createChatSession,
+    demoMode,
+    toggleDemoMode,
   } = useAppStore();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
+  const navigationGroups = getNavigationGroups(activeScope);
+  const organizationProjects = workspaces.filter(
+    (workspace) => workspace.organizationId === currentOrganization.id
+  );
+
+  const getWorkspaceGradient = (name) => {
+    return name?.toLowerCase() === "pixtooth"
+      ? "bg-[linear-gradient(135deg,#4ade80,#3b82f6)]"
+      : "bg-[linear-gradient(135deg,#60a5fa,#1d4ed8)]";
+  };
 
   return (
     <Sidebar
-      className={cn(
-        "border-r border-border bg-[#131314]",
-        "transition-[left,right,top,width]"
-      )}
+      className={cn("app-sidebar-container", isCollapsed && "collapsed")}
       collapsible="icon"
       variant="sidebar"
     >
-      <SidebarHeader className="h-12 flex-row items-center justify-between border-b border-[#2A2D31] px-3 bg-[#131314]">
-        <div className="relative group w-full">
-          <button className="w-full flex items-center justify-between px-2 py-1.5 text-sm font-medium text-[#E3E3E3] hover:bg-[#2A2D31] rounded-md transition-colors">
-            <span className="truncate">{currentWorkspace.name}</span>
-            <ChevronDown size={14} className="text-[#8E918F] shrink-0" />
-          </button>
-          <div className="absolute top-full left-0 w-56 mt-1 bg-[#1E1F20] border border-[#2A2D31] rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-1">
-            <div className="px-3 py-2 text-xs text-[#8E918F] font-medium uppercase tracking-wider">
-              Workspaces
-            </div>
-            {workspaces.map((ws) => (
-              <button
-                key={ws.id}
-                onClick={() => selectWorkspace(ws.id)}
-                className={`w-full text-left px-3 py-2 text-sm hover:bg-[#2A2D31] transition-colors ${
-                  ws.id === currentWorkspace.id ? "text-[#A8C7FA]" : "text-[#E3E3E3]"
-                }`}
-              >
-                {ws.name}
-              </button>
-            ))}
-            <div className="border-t border-[#2A2D31] my-1" />
-            <button
-              onClick={() => {
-                const name = prompt("Workspace name:");
-                if (name?.trim()) createWorkspace(name.trim());
-              }}
-              className="w-full text-left px-3 py-2 text-sm text-[#E3E3E3] hover:bg-[#2A2D31] transition-colors flex items-center gap-2"
-            >
-              <Plus size={14} />
-              New Workspace
-            </button>
-          </div>
-        </div>
+      <SidebarHeader className="sidebar-header-custom">
+        <SidebarMenu className="sidebar-menu-custom">
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" className="sidebar-logo-button">
+              <div className="sidebar-logo-icon-wrapper">
+                <LogoIcon className="h-5 w-5" />
+              </div>
+              <div className="sidebar-logo-title-wrapper group-data-[collapsible=icon]:hidden">
+                <span className="sidebar-logo-title-text">Efferd</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+
+        <div className="sidebar-divider-custom" />
+
+        {activeScope === "project" && (
+          <div className="sidebar-switcher-wrapper">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={<SidebarMenuButton size="lg" className="sidebar-switcher-trigger" />}
+                  >
+                    <div
+                      className={cn(
+                        "workspace-circle-logo",
+                        getWorkspaceGradient(currentWorkspace.name)
+                      )}
+                    />
+                    <div className="workspace-title-wrapper group-data-[collapsible=icon]:hidden">
+                      <span className="workspace-title-text">{currentWorkspace.name}</span>
+                      <span className="workspace-subtitle-text">{currentOrganization.name}</span>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    side="right"
+                    align="start"
+                    sideOffset={12}
+                    className="sidebar-switcher-dropdown-content"
+                  >
+                    <div className="dropdown-section-label">Projects</div>
+                    {organizationProjects.map((workspace) => (
+                      <DropdownMenuItem
+                        key={workspace.id}
+                        onClick={() => selectWorkspace(workspace.id)}
+                        className={cn(
+                          "dropdown-item-custom",
+                          currentWorkspace.id === workspace.id && "selected"
+                        )}
+                      >
+                        <div className="dropdown-item-left">
+                          <div
+                            className={cn(
+                              "dropdown-workspace-circle",
+                              getWorkspaceGradient(workspace.name)
+                            )}
+                          />
+                          <div className="dropdown-item-meta">
+                            <span className="dropdown-workspace-name">{workspace.name}</span>
+                            <span className="dropdown-workspace-plan">{workspace.domain}</span>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                    <div className="dropdown-section-separator" />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        const name = prompt("Project name:");
+                        if (name?.trim()) createWorkspace(name.trim());
+                      }}
+                      className="dropdown-item-custom dropdown-item-create"
+                    >
+                      <div className="dropdown-item-left">
+                        <div className="dropdown-workspace-circle dropdown-circle-plus">
+                          <Plus size={14} />
+                        </div>
+                        <div className="dropdown-item-meta">
+                          <span className="dropdown-workspace-name">Create project</span>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </div>)}
+
+        <div className="sidebar-divider-custom" />
       </SidebarHeader>
 
-      <SidebarContent className="py-2 bg-[#131314]">
-        <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.id}>
-              <SidebarMenuButton
-                isActive={activeSection === item.id}
-                tooltip={item.title}
-                onClick={() => setActiveSection(item.id)}
-                className={cn(
-                  "text-[#C4C7C5] hover:bg-[#2A2D31] hover:text-[#E3E3E3]",
-                  activeSection === item.id && "bg-[#2A2D31] text-[#A8C7FA]"
-                )}
+      <SidebarContent className="sidebar-content-custom">
+        {activeScope === "project" ? (
+          <div className="sidebar-back-link-wrap group-data-[collapsible=icon]:hidden">
+            <button onClick={goToOrganizationHome} className="sidebar-back-link-btn">
+              <Undo2 size={14} />
+              <span>Back to organization</span>
+            </button>
+          </div>
+        ) : null}
+
+        {navigationGroups.map((group, index) => (
+          <div key={group.id}>
+            {group.label && (
+              <SidebarGroupLabel className="sidebar-group-label-custom group-data-[collapsible=icon]:hidden">
+                {group.label}
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroup className="sidebar-group-custom">
+              <SidebarGroupContent>
+                <SidebarMenu className="sidebar-menu-gap">
+                  {group.items.map((item) => {
+                    const Icon = sectionIcons[item.icon];
+                    return (
+                      <SidebarMenuItem key={item.id}>
+                        <SidebarMenuButton
+                          isActive={activeSection === item.id}
+                          tooltip={item.title}
+                          onClick={() => setActiveSection(item.id)}
+                          className={cn(
+                            "sidebar-nav-button",
+                            activeSection === item.id && "active"
+                          )}
+                        >
+                          <div className="sidebar-nav-left">
+                            <div className="sidebar-nav-icon">
+                              <Icon size={18} />
+                            </div>
+                            <span className="sidebar-nav-label group-data-[collapsible=icon]:hidden">
+                              {item.title}
+                            </span>
+                          </div>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            {/* Org switcher dropdown after the first group (general) */}
+            {index === 0 && activeScope === "organization" && (
+              <>
+                <div className="sidebar-group-separator" />
+                <SidebarGroup className="sidebar-group-custom">
+                  <SidebarGroupContent>
+                    <SidebarMenu className="sidebar-menu-gap">
+                      <SidebarMenuItem>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            render={<SidebarMenuButton size="lg" className="sidebar-switcher-trigger" />}
+                          >
+                            <div
+                              className={cn(
+                                "workspace-circle-logo",
+                                getWorkspaceGradient(currentOrganization.name)
+                              )}
+                            />
+                            <div className="workspace-title-wrapper group-data-[collapsible=icon]:hidden">
+                              <span className="workspace-title-text">{currentOrganization.name}</span>
+                              <span className="workspace-subtitle-text">Organizations</span>
+                            </div>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            side="right"
+                            align="start"
+                            sideOffset={12}
+                            className="sidebar-switcher-dropdown-content"
+                          >
+                            <div className="dropdown-section-label">Organizations</div>
+                            {organizations.map((organization) => (
+                              <DropdownMenuItem
+                                key={organization.id}
+                                onClick={() => selectOrganization(organization.id)}
+                                className={cn(
+                                  "dropdown-item-custom",
+                                  currentOrganization.id === organization.id && "selected"
+                                )}
+                              >
+                                <div className="dropdown-item-left">
+                                  <div
+                                    className={cn(
+                                      "dropdown-workspace-circle",
+                                      getWorkspaceGradient(organization.name)
+                                    )}
+                                  />
+                                  <div className="dropdown-item-meta">
+                                    <span className="dropdown-workspace-name">{organization.name}</span>
+                                    <span className="dropdown-workspace-plan">{organization.owner}</span>
+                                  </div>
+                                </div>
+                              </DropdownMenuItem>
+                            ))}
+                            <div className="dropdown-section-separator" />
+                            <DropdownMenuItem
+                              onClick={() => {
+                                const name = prompt("Organization name:");
+                                if (name?.trim()) createOrganization(name.trim());
+                              }}
+                              className="dropdown-item-custom dropdown-item-create"
+                            >
+                              <div className="dropdown-item-left">
+                                <div className="dropdown-workspace-circle dropdown-circle-plus">
+                                  <Plus size={14} />
+                                </div>
+                                <div className="dropdown-item-meta">
+                                  <span className="dropdown-workspace-name">Create organization</span>
+                                </div>
+                              </div>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </SidebarMenuItem>
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              </>
+            )}
+          </div>
+        ))}
+
+        {activeScope === "organization" ? (
+          <>
+            <SidebarGroup className="sidebar-group-custom">
+              <SidebarGroupLabel className="sidebar-group-label-custom group-data-[collapsible=icon]:hidden">
+                Projects
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu className="sidebar-menu-gap">
+                  {organizationProjects.map((workspace) => (
+                    <SidebarMenuItem key={workspace.id}>
+                      <SidebarMenuButton
+                        isActive={false}
+                        tooltip={workspace.name}
+                        onClick={() => selectWorkspace(workspace.id)}
+                        className={cn(
+                          "sidebar-nav-button",
+                          activeScope === "project" &&
+                            currentWorkspace.id === workspace.id &&
+                            "active"
+                        )}
+                      >
+                        <div className="sidebar-nav-left">
+                          <div
+                            className={cn(
+                              "sidebar-nav-org-dot",
+                              getWorkspaceGradient(workspace.name)
+                            )}
+                          />
+                          <span className="sidebar-nav-label group-data-[collapsible=icon]:hidden">
+                            {workspace.name}
+                          </span>
+                        </div>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      tooltip="Create project"
+                      onClick={() => {
+                        const name = prompt("Project name:");
+                        if (name?.trim()) createWorkspace(name.trim());
+                      }}
+                      className="sidebar-nav-button"
+                    >
+                      <div className="sidebar-nav-left">
+                        <div className="sidebar-nav-icon">
+                          <Plus size={18} />
+                        </div>
+                        <span className="sidebar-nav-label group-data-[collapsible=icon]:hidden">
+                          Create project
+                        </span>
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
+        ) : null}
+
+        {activeScope === "project" ? (
+          <>
+            <SidebarGroup className="sidebar-group-custom relative group/chat-group">
+              <SidebarGroupLabel className="sidebar-group-label-custom group-data-[collapsible=icon]:hidden">
+                Chat History
+              </SidebarGroupLabel>
+              <SidebarGroupAction
+                onClick={() => {
+                  createChatSession();
+                  setActiveSection("chat");
+                }}
+                title="New Chat"
+                className="chat-group-plus-btn"
               >
-                {item.icon}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+                <Plus size={14} />
+              </SidebarGroupAction>
+              <SidebarGroupContent>
+                <SidebarMenu className="sidebar-menu-gap">
+                  {chatSessions
+                    .filter((session) => session.messages && session.messages.length > 0)
+                    .map((session) => (
+                      <SidebarMenuItem key={session.id}>
+                        <SidebarMenuButton
+                          isActive={activeSection === "chat" && activeChatId === session.id}
+                          tooltip={session.title}
+                          onClick={() => {
+                            selectChat(session.id);
+                            setActiveSection("chat");
+                          }}
+                          className={cn(
+                            "sidebar-nav-button",
+                            activeSection === "chat" &&
+                              activeChatId === session.id &&
+                              "active"
+                          )}
+                        >
+                          <div className="sidebar-nav-left">
+                            <div className="sidebar-nav-icon">
+                              <MessageSquare size={18} />
+                            </div>
+                            <span className="sidebar-nav-label group-data-[collapsible=icon]:hidden">
+                              {session.title}
+                            </span>
+                          </div>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
+        ) : null}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-[#2A2D31] p-3 bg-[#131314]">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-[#A8C7FA]/20 flex items-center justify-center">
-            <span className="text-xs font-medium text-[#A8C7FA]">U</span>
-          </div>
-          <span className="text-sm text-[#E3E3E3] group-data-[collapsible=icon]:hidden">
-            User
-          </span>
-        </div>
+      <SidebarSeparator className="sidebar-separator-custom" />
+
+      <SidebarFooter className="sidebar-footer-custom">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Documentation"
+              onClick={() => alert("Opening documentation...")}
+              className="sidebar-nav-button"
+            >
+              <div className="sidebar-nav-left">
+                <div className="sidebar-nav-icon">
+                  <BookOpen size={18} />
+                </div>
+                <span className="sidebar-nav-label group-data-[collapsible=icon]:hidden">
+                  Documentation
+                </span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Demo Mode"
+              onClick={toggleDemoMode}
+              className={cn("sidebar-nav-button", demoMode && "active")}
+            >
+              <div className="sidebar-nav-left">
+                <div className="sidebar-nav-icon">
+                  <Power size={18} />
+                </div>
+                <span className="sidebar-nav-label group-data-[collapsible=icon]:hidden">
+                  Demo mode
+                </span>
+              </div>
+              <div className="sidebar-toggle-pill group-data-[collapsible=icon]:hidden">
+                <span className={cn("sidebar-toggle-dot", demoMode && "active")} />
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   );
 }

@@ -4,13 +4,32 @@ import { AnalyticsView } from '@/components/shell/AnalyticsView';
 import { NodesView } from '@/components/shell/NodesView';
 import { IntegrationsView } from '@/components/shell/IntegrationsView';
 import { ChatView } from '@/components/shell/ChatView';
+import { SettingsView } from '@/components/shell/SettingsView';
+import { OnboardingView } from '@/components/shell/OnboardingView';
+import { GraphView } from '@/components/shell/GraphView';
+import { OrganizationHomeView } from '@/components/shell/OrganizationHomeView';
+import { OrganizationProjectsView } from '@/components/shell/OrganizationProjectsView';
+import { OrganizationOrganizationsView } from '@/components/shell/OrganizationOrganizationsView';
+import { OrganizationAccessView } from '@/components/shell/OrganizationAccessView';
+import { OrganizationBillingView } from '@/components/shell/OrganizationBillingView';
+import { OrganizationSettingsView } from '@/components/shell/OrganizationSettingsView';
+import { OrganizationStatsView } from '@/components/shell/OrganizationStatsView';
 import { useAppStore } from '@/stores/useAppStore';
 
 const views = {
+  onboarding: OnboardingView,
   analytics: AnalyticsView,
-  nodes: NodesView,
+  graph: GraphView,
   integrations: IntegrationsView,
+  settings: SettingsView,
   chat: ChatView,
+  'organization-home': OrganizationHomeView,
+  'organization-projects': OrganizationProjectsView,
+  'organization-organizations': OrganizationOrganizationsView,
+  'organization-access': OrganizationAccessView,
+  'organization-billing': OrganizationBillingView,
+  'organization-settings': OrganizationSettingsView,
+  'organization-stats': OrganizationStatsView,
 };
 
 export function AppLayout() {
@@ -22,7 +41,7 @@ export function AppLayout() {
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Header />
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
           <ActiveView />
         </main>
       </div>
