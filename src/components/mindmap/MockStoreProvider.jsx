@@ -3,6 +3,7 @@ import { mockData } from './mockData';
 class MockUIStore {
     scale = 1;
     pan = { x: 0, y: 0 };
+    selectedItems = new Set();
     
     // We keep these empty since the standalone mode just mocks UI action events:
     toggleSelection() {}
@@ -22,6 +23,7 @@ class MockDataStore {
     mindmapManifest = mockData.mindmapManifest;
     mindmapYaml = mockData.mindmapYaml;
     sourceMetadata = mockData.sourceMetadata;
+    origin = [];
 }
 
 class MockEditorStore {
