@@ -80,14 +80,8 @@ export function OrganizationOrganizationsView() {
             <span>All organizations</span>
           </button>
 
-          <div className="org-section-panel">
-            <div className="org-section-header">
-              <span className="org-section-title">
-                <Building2 size={14} />
-                Edit organization
-              </span>
-            </div>
-            <div className="org-detail-form">
+          <div className="org-edit-section">
+            <div className="org-edit-fields">
               <label className="org-modal-field">
                 <span className="org-modal-field-label">Name</span>
                 <Input className="org-modal-input" value={editName} onChange={(e) => { setEditName(e.target.value); setDirty(true); }} placeholder="Organization name" />
@@ -117,18 +111,13 @@ export function OrganizationOrganizationsView() {
             )}
           </div>
 
-          <div className="org-section-panel">
-            <div className="org-section-header">
-              <span className="org-section-title"><Trash2 size={14} /> Delete</span>
-            </div>
-            <div className="org-detail-form">
-              <div className="org-detail-danger-row">
-                <div>
-                  <div className="org-detail-info-label">Delete this organization</div>
-                  <div className="org-detail-info-value" style={{ fontSize: 12, color: '#8E918F', marginTop: 2 }}>Permanently remove this organization and all its projects.</div>
-                </div>
-                <button className="org-btn-danger" onClick={() => { if (window.confirm(`Delete "${selectedOrg.name}"?`)) handleDelete(selectedOrg.id); }}><Trash2 size={14} /> Delete</button>
+          <div className="org-edit-section">
+            <div className="org-edit-danger-row">
+              <div>
+                <div className="org-edit-danger-label">Delete this organization</div>
+                <div className="org-edit-danger-desc">Permanently remove this organization and all its projects.</div>
               </div>
+              <button className="org-btn-danger" onClick={() => { if (window.confirm(`Delete "${selectedOrg.name}"?`)) handleDelete(selectedOrg.id); }}><Trash2 size={14} /> Delete</button>
             </div>
           </div>
         </div>
@@ -150,11 +139,8 @@ export function OrganizationOrganizationsView() {
             <span>All organizations</span>
           </button>
 
-          <div className="org-section-panel">
-            <div className="org-section-header">
-              <span className="org-section-title"><Plus size={14} /> New organization</span>
-            </div>
-            <div className="org-detail-form">
+          <div className="org-edit-section">
+            <div className="org-edit-fields">
               <label className="org-modal-field">
                 <span className="org-modal-field-label">Name</span>
                 <Input className="org-modal-input" value={createName} onChange={(e) => setCreateName(e.target.value)} placeholder="Organization name" />
@@ -169,7 +155,7 @@ export function OrganizationOrganizationsView() {
                 </select>
               </label>
             </div>
-            <div className="org-detail-save-bar" style={{ borderTop: '1px solid #25282c', padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <div className="org-edit-actions">
               <button className="org-btn-secondary" onClick={() => { setCreating(false); setCreateName(''); setCreatePlan('Starter'); }}>Cancel</button>
               <button className="org-btn-primary" onClick={handleCreate}><Plus size={14} /> Create</button>
             </div>

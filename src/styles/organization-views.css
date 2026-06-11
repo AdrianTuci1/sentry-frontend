@@ -704,8 +704,13 @@
 }
 
 /* Detail / inline edit form */
-.org-detail-form {
-  padding: 18px 20px;
+.org-edit-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.org-edit-fields {
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -730,23 +735,32 @@
   gap: 8px;
 }
 
-.org-detail-info-label {
+.org-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid #25282c;
+  padding: 12px 20px;
+}
+
+.org-edit-danger-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+}
+
+.org-edit-danger-label {
   font-size: 13px;
   font-weight: 500;
   color: #f3f4f6;
 }
 
-.org-detail-info-value {
+.org-edit-danger-desc {
   margin-top: 2px;
-  font-size: 13px;
+  font-size: 12px;
   color: #8e918f;
-}
-
-.org-detail-danger-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
 }
 
 /* ==========================================================================
