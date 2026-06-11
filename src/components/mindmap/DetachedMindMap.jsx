@@ -247,48 +247,7 @@ const PendingPreview = ({ store }) => {
 const INSIGHT_NODE_WIDTH = 236;
 
 const InsightDock = observer(({ store }) => {
-    const insightNodes = store.data.layout.nodes
-        .filter((node) => node.type === 'card')
-        .map((node) => store.ui.positionedNodeMap.get(node.id) || node);
-
-    if (insightNodes.length === 0) {
-        return null;
-    }
-
-    const minY = Math.min(...insightNodes.map((node) => node.y));
-    const insightColumnCenterX = (
-        insightNodes.reduce((total, node) => total + node.x + (INSIGHT_NODE_WIDTH / 2), 0) / insightNodes.length
-    );
-    const isEditing = store.ui.isInsightDockEditing;
-
-    return (
-        <div
-            data-mindmap-interactive="true"
-            className="absolute z-20 -translate-x-1/2"
-            style={{ left: insightColumnCenterX, top: minY - 128, width: 44 }}
-            onMouseDown={(event) => event.stopPropagation()}
-            onClick={(event) => event.stopPropagation()}
-        >
-            <button
-                type="button"
-                className={clsx(
-                    'inline-flex h-9 w-9 items-center justify-center rounded-full border shadow-[0_12px_28px_rgba(0,0,0,0.30)] backdrop-blur-xl transition-colors',
-                    isEditing
-                        ? 'border-sky-300/30 bg-sky-500/[0.16] text-sky-100'
-                        : 'border-white/10 bg-[#14171B]/96 text-[#C8D1DB] hover:border-white/18 hover:text-white'
-                )}
-                onClick={(event) => {
-                    event.stopPropagation();
-                    store.ui.toggleInsightDockEditing();
-                }}
-                aria-label="Manage insight groups"
-                title="Manage insight groups"
-                aria-expanded={isEditing}
-            >
-                <Pencil size={14} />
-            </button>
-        </div>
-    );
+    return null;
 });
 
 const SourceNode = ({ store, viewModel }) => {
@@ -708,19 +667,15 @@ const FeatureMindMap = observer(({ onNodeClick, showCosts = false, customData })
     };
 
     const handleMouseDown = (event) => {
-        // Only trigger panning when clicking the background canvas, not on cards or menu docks
-        if (
-            event.target === event.currentTarget ||
-            event.target.tagName === 'svg' ||
-            event.target.id === 'canvas-grid' ||
-            (event.target.classList && event.target.classList.contains('absolute') && event.target.classList.contains('inset-0'))
-        ) {
-            setIsDragging(true);
-            setDragStart({
-                x: event.clientX - workspaceStore.ui.pan.x,
-                y: event.clientY - workspaceStore.ui.pan.y
-            });
+        // Prevent panning when clicking on interactive elements like nodes, menus, buttons, etc.
+        if (event.target.closest('[data-mindmap-interactive="true"], button, a, select, input, .insight-dock, .context-menu')) {
+            return;
         }
+        setIsDragging(true);
+        setDragStart({
+            x: event.clientX - workspaceStore.ui.pan.x,
+            y: event.clientY - workspaceStore.ui.pan.y
+        });
     };
 
     const handleMouseMove = (event) => {
