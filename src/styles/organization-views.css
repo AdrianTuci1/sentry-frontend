@@ -730,23 +730,6 @@
   gap: 8px;
 }
 
-.org-detail-owner-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.org-detail-owner-row .org-modal-input {
-  flex: 1;
-}
-
-.org-detail-info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .org-detail-info-label {
   font-size: 13px;
   font-weight: 500;

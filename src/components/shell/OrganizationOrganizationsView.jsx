@@ -9,10 +9,6 @@ import {
   Plus,
   Check,
   XIcon,
-  Mail,
-  CreditCard,
-  ShieldCheck,
-  UserPlus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -118,11 +114,10 @@ export function OrganizationOrganizationsView() {
 
   // Detail / inline edit view
   if (selectedOrg) {
-    const isCurrent = selectedOrg.id === currentOrganization.id;
     return (
       <ViewFrame
         title={selectedOrg.name}
-        description="Edit organization details, change plan, transfer ownership, or delete."
+        description="Edit organization details and settings."
         maxWidthClassName="max-w-3xl"
       >
         <div className="org-detail-shell">
@@ -135,7 +130,7 @@ export function OrganizationOrganizationsView() {
             <div className="org-section-header">
               <span className="org-section-title">
                 <Building2 size={14} />
-                Organization
+                Edit organization
               </span>
             </div>
 
@@ -147,6 +142,16 @@ export function OrganizationOrganizationsView() {
                   value={editName}
                   onChange={(e) => { setEditName(e.target.value); setDirty(true); }}
                   placeholder="Organization name"
+                />
+              </label>
+
+              <label className="org-modal-field">
+                <span className="org-modal-field-label">Owner</span>
+                <Input
+                  className="org-modal-input"
+                  value={editOwner}
+                  onChange={(e) => { setEditOwner(e.target.value); setDirty(true); }}
+                  placeholder="owner@example.com"
                 />
               </label>
 
@@ -182,7 +187,7 @@ export function OrganizationOrganizationsView() {
                   </button>
                   <button
                     className="org-btn-primary"
-                    onClick={() => handleEditSave(selectedOrg.id, { name: editName, plan: editPlan })}
+                    onClick={() => handleEditSave(selectedOrg.id, { name: editName, plan: editPlan, owner: editOwner })}
                   >
                     <Check size={14} />
                     Save
@@ -195,52 +200,8 @@ export function OrganizationOrganizationsView() {
           <div className="org-section-panel">
             <div className="org-section-header">
               <span className="org-section-title">
-                <Mail size={14} />
-                Ownership
-              </span>
-            </div>
-            <div className="org-detail-form">
-              <label className="org-modal-field">
-                <span className="org-modal-field-label">Owner email</span>
-                <div className="org-detail-owner-row">
-                  <Input
-                    className="org-modal-input"
-                    value={editOwner}
-                    onChange={(e) => { setEditOwner(e.target.value); setDirty(true); }}
-                    placeholder="owner@example.com"
-                  />
-                  <button className="org-btn-secondary" style={{ flexShrink: 0 }} onClick={() => setDirty(true)}>
-                    <UserPlus size={13} />
-                    Transfer
-                  </button>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <div className="org-section-panel">
-            <div className="org-section-header">
-              <span className="org-section-title">
-                <CreditCard size={14} />
-                Billing
-              </span>
-            </div>
-            <div className="org-detail-form">
-              <div className="org-detail-info-row">
-                <div>
-                  <div className="org-detail-info-label">Current plan</div>
-                  <div className="org-detail-info-value">{selectedOrg.plan}</div>
-                </div>
-                <span className="org-badge">{selectedOrg.plan === 'Starter' ? 'Free' : 'Paid'}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="org-section-panel">
-            <div className="org-section-header">
-              <span className="org-section-title">
-                <ShieldCheck size={14} />
-                Danger zone
+                <Trash2 size={14} />
+                Delete
               </span>
             </div>
             <div className="org-detail-form">
@@ -248,7 +209,7 @@ export function OrganizationOrganizationsView() {
                 <div>
                   <div className="org-detail-info-label">Delete this organization</div>
                   <div className="org-detail-info-value" style={{ fontSize: 12, color: '#8E918F', marginTop: 2 }}>
-                    Permanently remove this organization and all its projects.
+                    Permanently remove this organization and all its projects. This action cannot be undone.
                   </div>
                 </div>
                 <button
@@ -265,20 +226,6 @@ export function OrganizationOrganizationsView() {
               </div>
             </div>
           </div>
-
-          {!isCurrent && (
-            <button
-              className="org-btn-primary"
-              style={{ alignSelf: 'flex-start' }}
-              onClick={() => {
-                selectOrganization(selectedOrg.id);
-                setSelectedOrg(null);
-              }}
-            >
-              <Building2 size={14} />
-              Switch to this organization
-            </button>
-          )}
         </div>
       </ViewFrame>
     );
