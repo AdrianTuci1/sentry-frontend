@@ -3,6 +3,7 @@ import { DashboardLayout } from "@/components/widgets/DashboardLayout";
 import { ViewFrame } from "@/components/shell/ViewFrame";
 import { MarketingView } from "@/components/shell/MarketingView";
 import { SalesView } from "@/components/shell/SalesView";
+import { FinancialView } from "@/components/shell/FinancialView";
 
 const viewLayouts = {
   servers: "server-monitor",
@@ -22,6 +23,8 @@ export function AnalyticsView() {
         <MarketingView />
       ) : activeAnalyticsView === "sales" ? (
         <SalesView />
+      ) : activeAnalyticsView === "financial" ? (
+        <FinancialView />
       ) : (
         <DashboardLayout layoutId={layoutId} isNested={false} />
       )}
