@@ -152,14 +152,15 @@
 .org-btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   border: 1px solid #25282c;
-  border-radius: 10px;
-  padding: 7px 14px;
-  font-size: 12px;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 11px;
   color: #f3f4f6;
   background: transparent;
   cursor: pointer;
+  font-family: inherit;
   transition: background-color 0.15s;
 }
 
@@ -553,7 +554,7 @@
 .org-modal-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 
 .org-modal-field-label {
@@ -563,12 +564,13 @@
 }
 
 .org-modal-input {
-  border-radius: 10px;
+  border-radius: 8px;
   border-color: #2b2d30;
-  background: #17181a;
+  background: #1c1c1f;
   color: #e3e3e3;
-  height: 42px;
-  padding-inline: 11px;
+  height: 34px;
+  padding-inline: 10px;
+  font-size: 12px;
 }
 
 .org-modal-input:focus-visible {
@@ -659,7 +661,7 @@
 .org-detail-shell {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .org-back-btn {
@@ -712,9 +714,9 @@
 .org-edit-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 16px 20px 0;
-  font-size: 11px;
+  gap: 6px;
+  padding: 10px 20px 0;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -722,15 +724,15 @@
 }
 
 .org-edit-header svg {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
 }
 
 .org-edit-fields {
-  padding: 14px 20px 20px;
+  padding: 8px 20px 14px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .org-edit-owner-row {
@@ -750,9 +752,9 @@
   width: 100%;
   background: #1c1c1f;
   border: 1px solid #25282c;
-  border-radius: 10px;
-  padding: 9px 12px;
-  font-size: 13px;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 12px;
   color: #f3f4f6;
   font-family: inherit;
   cursor: pointer;
@@ -783,10 +785,10 @@
 .org-edit-dropdown-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 13px;
+  gap: 6px;
+  border-radius: 5px;
+  padding: 4px 8px;
+  font-size: 12px;
   color: #8e918f;
   cursor: pointer;
   outline: none;
@@ -808,9 +810,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   border-top: 1px solid #25282c;
-  padding: 12px 20px;
+  padding: 8px 20px;
 }
 
 .org-save-hint {
@@ -826,28 +828,28 @@
 .org-edit-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 6px;
   border-top: 1px solid #25282c;
-  padding: 12px 20px;
+  padding: 8px 20px;
 }
 
 .org-edit-danger-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 20px;
+  gap: 12px;
+  padding: 0;
 }
 
 .org-edit-danger-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: #f3f4f6;
 }
 
 .org-edit-danger-desc {
   margin-top: 2px;
-  font-size: 12px;
+  font-size: 11px;
   color: #8e918f;
 }
 
@@ -914,9 +916,9 @@
 .org-form-select {
   background: #1c1c1f;
   border: 1px solid #25282c;
-  border-radius: 10px;
-  padding: 9px 12px;
-  font-size: 13px;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 12px;
   color: #f3f4f6;
   outline: none;
   font-family: inherit;
@@ -943,11 +945,11 @@
 .org-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   border: none;
-  border-radius: 10px;
-  padding: 7px 16px;
-  font-size: 12px;
+  border-radius: 8px;
+  padding: 5px 14px;
+  font-size: 11px;
   font-weight: 500;
   color: #0b0d0e;
   background: #a8c7fa;
