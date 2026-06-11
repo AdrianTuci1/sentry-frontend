@@ -1,14 +1,14 @@
 import { useAppStore } from "@/stores/useAppStore";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { findSectionById } from "@/components/app-shared";
 import { Bell, LayoutGrid, Search } from "lucide-react";
 import "@/styles/header.css";
 
 export function AppHeader() {
-  const { activeSection } = useAppStore();
-  const sectionLabel =
-    activeSection === "nodes"
-      ? "Nodes / Findings"
-      : activeSection.charAt(0).toUpperCase() + activeSection.slice(1);
+  const { activeSection, activeScope, currentOrganization, currentWorkspace } = useAppStore();
+  const section = findSectionById(activeScope, activeSection);
+  const scopeLabel =
+    activeScope === "organization" ? currentOrganization.name : currentWorkspace.name;
 
   return (
     <header className="app-header">
@@ -18,9 +18,14 @@ export function AppHeader() {
           <div className="header-divider" />
           <div className="header-section-title">
             <LayoutGrid size={18} className="header-section-icon" />
-            <span className="header-section-text">
-              {sectionLabel}
-            </span>
+            <div className="header-section-copy">
+              <span className="header-section-eyebrow">
+                {activeScope === "organization" ? "Organization" : "Project"}
+              </span>
+              <span className="header-section-text">
+                {scopeLabel} · {section?.title || "Dashboard"}
+              </span>
+            </div>
           </div>
         </div>
 

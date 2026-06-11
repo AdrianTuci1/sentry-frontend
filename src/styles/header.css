@@ -59,6 +59,20 @@
   gap: 8px;
 }
 
+.header-section-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.header-section-eyebrow {
+  font-size: 10px;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #8E918F;
+}
+
 .header-section-icon {
   color: #8E918F;
 }
@@ -70,6 +84,7 @@
   font-size: 13px; /* slightly smaller font */
   font-weight: 600;
   color: #FFFFFF;
+  margin-top: 2px;
 }
 
 .header-right-side {
